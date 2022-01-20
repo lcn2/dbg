@@ -36,9 +36,12 @@ RM= rm
 
 DESTDIR= /usr/local/bin
 
-TARGETS= dbg_test
+TARGETS= dbg.o dbg_test
 
 all: ${TARGETS}
+
+dbg.o: dbg.c dbg.h Makefile
+	${CC} ${CFLAGS} dbg.c -c
 
 dbg_test: dbg.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg.c -o $@
@@ -55,3 +58,6 @@ clobber: clean
 
 install: all
 	@echo nothing to $@
+
+test: dbg_test Makefile
+	-./dbg_test -v 1 -e 12 work_dir iocccsize_path

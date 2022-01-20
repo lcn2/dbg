@@ -142,6 +142,8 @@ extern void vfprintf_usage(int exitcode, FILE *stream, const char *fmt, ...);
 #    define DBG_VHIGH (7)	/* very verbose debugging */
 #    define DBG_VVHIGH (9)	/* very very verbose debugging */
 #    define DBG_VVVHIGH (11)	/* very very very verbose debugging */
+
 #    define FORCED_EXIT (255)	/* exit(255) on bad exit code */
+#    define DONT_EXIT (-1)	/* do not let vfprintf_usage() exit */
 
 #endif				/* INCLUDE_DBG_H */

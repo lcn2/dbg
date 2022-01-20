@@ -647,7 +647,7 @@ main(int argc, char *argv[])
 	    errno = forced_errno;	/* simulate errno setting */
 	    break;
 	default:
-	    vfprintf_usage(-1, stderr, "invalid -flag");
+	    vfprintf_usage(DONT_EXIT, stderr, "invalid -flag");
 	    /* exit(3); */
 	    vfprintf_usage(3, stderr, usage, program, VERSION);
 	    /*NOTREACHED*/
@@ -661,7 +661,7 @@ main(int argc, char *argv[])
 	tar_path = argv[optind+2];
 	break;
     default:
-	vfprintf_usage(-1, stderr, "requires 2 or 3 arguments");
+	vfprintf_usage(DONT_EXIT, stderr, "requires 2 or 3 arguments");
 	/* exit(4); */
 	vfprintf_usage(4, stderr, usage, program, VERSION);
 	/*NOTREACHED*/
