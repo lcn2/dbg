@@ -43,7 +43,7 @@
  * globals
  */
 char *program = NULL;			/* our name */
-int verbosity_level = DBG_NONE;		/* debug level set by -v */
+int verbosity_level = DBG_DEFAULT;	/* debug level set by -v */
 
 
 /*
