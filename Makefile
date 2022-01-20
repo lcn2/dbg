@@ -60,4 +60,7 @@ install: all
 	@echo nothing to $@
 
 test: dbg_test Makefile
+	@echo "This next test is supposed fail with the error: FATAL[5]: main: simulated error, ..."
+	@echo "RUNNING: dbg_test"
 	-./dbg_test -v 1 -e 12 work_dir iocccsize_path
+	@echo "PASSED: dbg_test"
