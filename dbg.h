@@ -45,9 +45,9 @@
  *
  * Not all compiles have __has_builtin
  */
-#if !defined(__attribute__) && (defined(__cplusplus) || \
-    !defined(__GNUC__)  || __GNUC__ == 2 && __GNUC_MINOR__ < 8)
-# define __attribute__(A)
+#if !defined(__attribute__) && \
+    (defined(__cplusplus) || !defined(__GNUC__)  || __GNUC__ == 2 && __GNUC_MINOR__ < 8)
+#    define __attribute__(A)
 #endif
 #if !defined __has_builtin
 #    define __has_builtin(x) 0
