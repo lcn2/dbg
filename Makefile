@@ -30,8 +30,8 @@
 SHELL= /bin/bash
 
 CC= cc
-CFLAGS= -O3 -g3 --pedantic -Wall -Werror -DDBG_TEST
-#CFLAGS= -O3 -g3 --pedantic -Wall -Werror -DDBG_TEST -DDBG_LINT
+CFLAGS= -O3 -g3 -pedantic -Wall -Werror -DDBG_TEST
+#CFLAGS= -O3 -g3 -pedantic -Wall -Werror -DDBG_TEST -DDBG_LINT
 RM= rm
 
 DESTDIR= /usr/local/bin
