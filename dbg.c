@@ -37,7 +37,7 @@
 /*
  * definitions
  */
-#define VERSION "1.3 2022-02-20"
+#define VERSION "1.4 2022-02-23"
 
 
 /*
@@ -132,13 +132,13 @@ msg(char const *fmt, ...)
  * dbg - print debug message if we are verbose enough
  *
  * given:
- * 	level	print message if >= verbosity level
- * 	fmt	printf format
- * 	...
+ *	level	print message if >= verbosity level
+ *	fmt	printf format
+ *	...
  *
  * Example:
  *
- * 	dbg(1, "foobar information: %d", value);
+ *	dbg(1, "foobar information: %d", value);
  *
  * NOTE: We warn with extra newlines to help internal fault messages stand out.
  *	 Normally one should NOT include newlines in warn messages.
@@ -207,13 +207,13 @@ dbg(int level, char const *fmt, ...)
  * warn - issue a warning message
  *
  * given:
- * 	name	name of function issuing the warning
- * 	fmt	format of the warning
- * 	...	optional format args
+ *	name	name of function issuing the warning
+ *	fmt	format of the warning
+ *	...	optional format args
  *
  * Example:
  *
- * 	warn(__func__, "unexpected foobar: %d", value);
+ *	warn(__func__, "unexpected foobar: %d", value);
  *
  * NOTE: We warn with extra newlines to help internal fault messages stand out.
  *	 Normally one should NOT include newlines in warn messages.
@@ -288,13 +288,13 @@ warn(char const *name, char const *fmt, ...)
  * warnp - issue a warning message with errno information
  *
  * given:
- * 	name	name of function issuing the warning
- * 	fmt	format of the warning
- * 	...	optional format args
+ *	name	name of function issuing the warning
+ *	fmt	format of the warning
+ *	...	optional format args
  *
  * Example:
  *
- * 	warnp(__func__, "unexpected foobar: %d", value);
+ *	warnp(__func__, "unexpected foobar: %d", value);
  *
  * NOTE: We warn with extra newlines to help internal fault messages stand out.
  *	 Normally one should NOT include newlines in warn messages.
@@ -365,14 +365,14 @@ warnp(char const *name, char const *fmt, ...)
  * err - issue a fatal error message and exit
  *
  * given:
- * 	exitcode	value to exit with
- * 	name		name of function issuing the warning
- * 	fmt		format of the warning
- * 	...		optional format args
+ *	exitcode	value to exit with
+ *	name		name of function issuing the warning
+ *	fmt		format of the warning
+ *	...		optional format args
  *
  * Example:
  *
- * 	err(1, __func__, "bad foobar: %s", message);
+ *	err(1, __func__, "bad foobar: %s", message);
  *
  * NOTE: We warn with extra newlines to help internal fault messages stand out.
  *	 Normally one should NOT include newlines in warn messages.
@@ -444,14 +444,14 @@ err(int exitcode, char const *name, char const *fmt, ...)
  * errp - issue a fatal error message with errno information and exit
  *
  * given:
- * 	exitcode	value to exit with
- * 	name		name of function issuing the warning
- * 	fmt		format of the warning
- * 	...		optional format args
+ *	exitcode	value to exit with
+ *	name		name of function issuing the warning
+ *	fmt		format of the warning
+ *	...		optional format args
  *
  * Example:
  *
- * 	errp(1, __func__, "bad foobar: %s", message);
+ *	errp(1, __func__, "bad foobar: %s", message);
  *
  * NOTE: We warn with extra newlines to help internal fault messages stand out.
  *	 Normally one should NOT include newlines in warn messages.
@@ -531,10 +531,10 @@ errp(int exitcode, char const *name, char const *fmt, ...)
  * vfprintf_usage - print command line usage and perhaps exit
  *
  * given:
- * 	exitcode	- >= 0, exit with this code
+ *	exitcode	- >= 0, exit with this code
  *			  < 0, just return
  *	stream		- stream to print on
- * 	fmt		- format of the usage message
+ *	fmt		- format of the usage message
  *	...		- potential args for usage message
  */
 void
@@ -607,15 +607,15 @@ vfprintf_usage(int exitcode, FILE *stream, char const *fmt, ...)
  * warn_or_err - issue a warning or an error depending on test
  *
  * given:
- * 	exitcode	value to exit with
- * 	name		name of function issuing the warning
+ *	exitcode	value to exit with
+ *	name		name of function issuing the warning
  *	test		true ==> call warn(), false ==> call err()
- * 	fmt		format of the warning
- * 	...		optional format args
+ *	fmt		format of the warning
+ *	...		optional format args
  *
  * Example:
  *
- * 	warn_or_err(1, __func__, true, "bad foobar: %s", message);
+ *	warn_or_err(1, __func__, true, "bad foobar: %s", message);
  *
  * NOTE: This function does not return if test == false.
  */
@@ -684,15 +684,15 @@ warn_or_err(int exitcode, const char *name, bool test, const char *fmt, ...)
  * warnp_or_errp - issue a warning or an error depending on test
  *
  * given:
- * 	exitcode	value to exit with
- * 	name		name of function issuing the warning
+ *	exitcode	value to exit with
+ *	name		name of function issuing the warning
  *	test		true ==> call warn(), false ==> call err()
- * 	fmt		format of the warning
- * 	...		optional format args
+ *	fmt		format of the warning
+ *	...		optional format args
  *
  * Example:
  *
- * 	warnp_or_errp(1, __func__, true, "bad foobar: %s", message);
+ *	warnp_or_errp(1, __func__, true, "bad foobar: %s", message);
  *
  * NOTE: This function does not return if test == false.
  */
@@ -778,7 +778,7 @@ main(int argc, char *argv[])
 	switch (i) {
 	case 'h':	/* -h - print help to stderr and exit 0 */
 	    /* exit(0); */
-	    vfprintf_usage(0, stderr, usage, program, VERSION);
+	    vfprintf_usage(0, stderr, usage, program, VERSION); /*ooo*/
 	    not_reached();
 	    break;
 	case 'v':	/* -v verbosity */
@@ -787,17 +787,17 @@ main(int argc, char *argv[])
 	    verbosity_level = (int)strtol(optarg, NULL, 0);
 	    if (errno != 0) {
 		/* exit(1); */
-		err(1, __func__, "cannot parse -v arg: %s error: %s", optarg, strerror(errno));
+		err(1, __func__, "cannot parse -v arg: %s error: %s", optarg, strerror(errno)); /*ooo*/
 		not_reached();
 	    }
 	    break;
 	case 'e':	/* -e errno - force errno */
-	    /* parse verbosity */
+	    /* parse errno */
 	    errno = 0;
 	    forced_errno = (int)strtol(optarg, NULL, 0);
 	    if (errno != 0) {
 		/* exit(2); */
-		err(2, __func__, "cannot parse -v arg: %s error: %s", optarg, strerror(errno));
+		err(2, __func__, "cannot parse -v arg: %s error: %s", optarg, strerror(errno)); /*ooo*/
 		not_reached();
 	    }
 	    errno = forced_errno;	/* simulate errno setting */
@@ -805,7 +805,7 @@ main(int argc, char *argv[])
 	default:
 	    vfprintf_usage(DO_NOT_EXIT, stderr, "invalid -flag");
 	    /* exit(3); */
-	    vfprintf_usage(3, stderr, usage, program, VERSION);
+	    vfprintf_usage(3, stderr, usage, program, VERSION); /*ooo*/
 	    not_reached();
 	}
     }
@@ -819,7 +819,7 @@ main(int argc, char *argv[])
     default:
 	vfprintf_usage(DO_NOT_EXIT, stderr, "requires 2 or 3 arguments");
 	/* exit(4); */
-	vfprintf_usage(4, stderr, usage, program, VERSION);
+	vfprintf_usage(4, stderr, usage, program, VERSION); /*ooo*/
 	not_reached();
 	break;
     }
@@ -835,10 +835,10 @@ main(int argc, char *argv[])
      */
     if (errno != 0) {
 	/* exit(5); */
-	errp(5, __func__, "simulated error, foo: %s bar: %s", foo, baz);
+	errp(5, __func__, "simulated error, foo: %s bar: %s", foo, baz); /*ooo*/
     }
     /* exit(6); */
-    err(6, __func__, "simulated error, foo: %s bar: %s", foo, baz);
+    err(6, __func__, "simulated error, foo: %s bar: %s", foo, baz); /*ooo*/
     not_reached();
 }
 #endif /* DBG_TEST */
