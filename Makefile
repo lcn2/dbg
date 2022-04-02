@@ -36,22 +36,22 @@ RM= rm
 
 DESTDIR= /usr/local/bin
 
-TARGETS= dbg.o dbg_test
+TARGETS= dbg.o dbg
 
 all: ${TARGETS}
 
 dbg.o: dbg.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg.c -c
 
-dbg_test: dbg.c dbg.h Makefile
+dbg: dbg.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg.c -o $@
 
 configure:
 	@echo nothing to $@
 
 clean:
-	${RM} -f dbg.o dbg_test.o
-	${RM} -rf dbg_test.dSYM
+	${RM} -f dbg.o
+	${RM} -rf dbg.dSYM
 
 clobber: clean
 	${RM} -f ${TARGETS}
@@ -59,8 +59,8 @@ clobber: clean
 install: all
 	@echo nothing to $@
 
-test: dbg_test Makefile
+test: dbg Makefile
 	@echo "This next test is supposed fail with the error: FATAL[5]: main: simulated error, ..."
-	@echo "RUNNING: dbg_test"
-	-./dbg_test -v 1 -e 12 work_dir iocccsize_path
-	@echo "PASSED: dbg_test"
+	@echo "RUNNING: dbg"
+	-./dbg -v 1 -e 12 work_dir iocccsize_path
+	@echo "PASSED: dbg"
