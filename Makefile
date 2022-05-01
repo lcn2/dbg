@@ -33,6 +33,8 @@ CC= cc
 CFLAGS= -O3 -g3 -pedantic -Wall -Werror -DDBG_TEST
 #CFLAGS= -O3 -g3 -pedantic -Wall -Werror -DDBG_TEST -DDBG_LINT
 RM= rm
+GREP= grep
+CAT= cat
 
 DESTDIR= /usr/local/bin
 
@@ -52,6 +54,7 @@ configure:
 clean:
 	${RM} -f dbg.o
 	${RM} -rf dbg.dSYM
+	${RM} -f dbg.out
 
 clobber: clean
 	${RM} -f ${TARGETS}
@@ -60,7 +63,24 @@ install: all
 	@echo nothing to $@
 
 test: dbg Makefile
-	@echo "This next test is supposed fail with the error: FATAL[5]: main: simulated error, ..."
+	${RM} -f dbg.out
 	@echo "RUNNING: dbg"
-	-./dbg -v 1 -e 12 work_dir iocccsize_path
-	@echo "PASSED: dbg"
+	@echo "./dbg -e 2 foo bar baz >dbg.out 2>&1"
+	@-./dbg -v 1 -e 2 foo bar baz > dbg.out 2>&1; \
+	  status="$$?"; \
+	  if [[ $$status -ne 5 ]]; then \
+	    echo "exit status of dbg: $$status != 5"; \
+	    exit 21; \
+	  else \
+	      ${GREP} -q '^FATAL\[5\]: main: simulated error, foo: foo bar: bar errno\[2\]: No such file or directory$$' dbg.out; \
+	      status="$$?"; \
+	      if [[ $$status -ne 0 ]]; then \
+		echo "ERROR: did not find the correct dbg error message" 1>&2; \
+		echo "ERROR: beginning dbg.out contents" 1>&2; \
+		${CAT} dbg.out 1>&2; \
+		echo "ERROR: dbg.out contents complete" 1>&2; \
+		exit 22; \
+	      else \
+		echo "PASSED: dbg"; \
+	      fi; \
+	  fi

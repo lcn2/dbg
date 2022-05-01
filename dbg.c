@@ -49,7 +49,7 @@ bool msg_warn_silent = false;		/* true ==> silence msg(), warn(), warnp() if ver
 /*
  * definitions
  */
-#define VERSION "1.8 2022-04-09"
+#define VERSION "1.9 2022-05-01"
 
 
 /*
@@ -1639,7 +1639,7 @@ main(int argc, char *argv[])
 	    not_reached();
 	}
     }
-    /* must have 2 or 3 args */
+    /* must have two or three args */
     switch (argc-optind) {
     case 2:
 	break;
@@ -1647,7 +1647,7 @@ main(int argc, char *argv[])
 	bar = argv[optind+2];
 	break;
     default:
-	fprintf_usage(DO_NOT_EXIT, stderr, "requires 2 or 3 arguments");
+	fprintf_usage(DO_NOT_EXIT, stderr, "requires two or three arguments");
 	/* exit(4); */
 	fprintf_usage(4, stderr, usage, program, VERSION); /*ooo*/
 	not_reached();
@@ -1664,12 +1664,12 @@ main(int argc, char *argv[])
      * report on dbg state, if debugging
      */
     dbg(DBG_MED, "verbosity_level: %d", verbosity_level);
-    dbg(DBG_MED, "msg_output_allowed: %s", msg_output_allowed ? "true" : "false");
-    dbg(DBG_MED, "dbg_output_allowed: %s", dbg_output_allowed ? "true" : "false");
-    dbg(DBG_MED, "warn_output_allowed: %s", warn_output_allowed ? "true" : "false");
-    dbg(DBG_MED, "err_output_allowed: %s", err_output_allowed ? "true" : "false");
-    dbg(DBG_MED, "usage_output_allowed: %s", usage_output_allowed ? "true" : "false");
-    dbg(DBG_MED, "msg_warn_silent: %s", msg_warn_silent ? "true" : "false");
+    dbg(DBG_MED, "msg_output_allowed: %s", t_or_f(msg_output_allowed));
+    dbg(DBG_MED, "dbg_output_allowed: %s", t_or_f(dbg_output_allowed));
+    dbg(DBG_MED, "warn_output_allowed: %s", t_or_f(warn_output_allowed));
+    dbg(DBG_MED, "err_output_allowed: %s", t_or_f(err_output_allowed));
+    dbg(DBG_MED, "usage_output_allowed: %s", t_or_f(usage_output_allowed));
+    dbg(DBG_MED, "msg_warn_silent: %s", t_or_f(msg_warn_silent));
     dbg(DBG_MED, "msg() output: %s",
 	(msg_output_allowed == true && (msg_warn_silent == false || verbosity_level > 0)) ?
 	"allowed" : "silenced");
