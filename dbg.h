@@ -40,6 +40,12 @@
 
 
 /*
+ * definitions
+ */
+#define DBG_VERSION "1.10 2022-05-01"		/* format: major.minor YYYY-MM-DD */
+
+
+/*
  * standard truth :-)
  */
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
@@ -53,9 +59,15 @@ typedef unsigned char bool;
 #undef false
 #define false ((bool)(0))
 #endif
-#if !defined(t_or_f)
-#define t_or_f(x) ((x) ? "true" : "false")
+/* booltostr - convert a boolean to a string */
+#if !defined(booltostr)
+#define booltostr(x) ((x) ? "true" : "false")
 #endif
+/* strtobool - convert a string to a boolean */
+#if !defined(strtobool)
+#define strtobool(x) ((x) != NULL && !strcmp((x), "true"))
+#endif
+
 
 
 /*

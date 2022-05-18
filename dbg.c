@@ -46,11 +46,6 @@ bool msg_warn_silent = false;		/* true ==> silence msg(), warn(), warnp() if ver
 #if defined(DBG_TEST)
 #include <getopt.h>
 
-/*
- * definitions
- */
-#define VERSION "1.9 2022-05-01"
-
 
 /*
  * usage message
@@ -59,7 +54,7 @@ bool msg_warn_silent = false;		/* true ==> silence msg(), warn(), warnp() if ver
  * This is just an example of usage: there is no mkiocccentry functionality here.
  */
 static char const * const usage =
-"usage: %s [-h] [-v level] [-q] [-e errno] foo bar [baz]\n"
+"usage: %s [-h] [-v level] [-V] [-q] [-e errno] foo bar [baz]\n"
 "\n"
 "\t-h\t\tprint help message and exit 0\n"
 "\t-v level\tset verbosity level: (def level: 0)\n"
@@ -1595,17 +1590,18 @@ main(int argc, char *argv[])
     char const *bar = "/usr/bin/tar";	/* path to tar that supports -cjvf */
     char const *baz = NULL;	/* path to the iocccsize tool */
     int forced_errno;			/* -e errno setting */
+    int ret;
     int i;
 
     /*
      * parse args
      */
     program = argv[0];
-    while ((i = getopt(argc, argv, "hv:qe:")) != -1) {
+    while ((i = getopt(argc, argv, "hv:Vqe:")) != -1) {
 	switch (i) {
 	case 'h':	/* -h - print help to stderr and exit 0 */
 	    /* exit(0); */
-	    fprintf_usage(0, stderr, usage, program, VERSION); /*ooo*/
+	    fprintf_usage(0, stderr, usage, program, DBG_VERSION); /*ooo*/
 	    not_reached();
 	    break;
 	case 'v':	/* -v verbosity */
@@ -1632,10 +1628,19 @@ main(int argc, char *argv[])
 	    }
 	    errno = forced_errno;	/* simulate errno setting */
 	    break;
+	case 'V':		/* -V - print version and exit */
+	    errno = 0;		/* pre-clear errno for warnp() */
+	    ret = printf("%s\n", DBG_VERSION);
+	    if (ret <= 0) {
+		warnp(__func__, "printf error printing version string: %s", DBG_VERSION);
+	    }
+	    exit(0); /*ooo*/
+	    not_reached();
+	    break;
 	default:
 	    fprintf_usage(DO_NOT_EXIT, stderr, "invalid -flag");
 	    /* exit(3); */
-	    fprintf_usage(3, stderr, usage, program, VERSION); /*ooo*/
+	    fprintf_usage(3, stderr, usage, program, DBG_VERSION); /*ooo*/
 	    not_reached();
 	}
     }
@@ -1649,7 +1654,7 @@ main(int argc, char *argv[])
     default:
 	fprintf_usage(DO_NOT_EXIT, stderr, "requires two or three arguments");
 	/* exit(4); */
-	fprintf_usage(4, stderr, usage, program, VERSION); /*ooo*/
+	fprintf_usage(4, stderr, usage, program, DBG_VERSION); /*ooo*/
 	not_reached();
 	break;
     }
@@ -1664,12 +1669,12 @@ main(int argc, char *argv[])
      * report on dbg state, if debugging
      */
     dbg(DBG_MED, "verbosity_level: %d", verbosity_level);
-    dbg(DBG_MED, "msg_output_allowed: %s", t_or_f(msg_output_allowed));
-    dbg(DBG_MED, "dbg_output_allowed: %s", t_or_f(dbg_output_allowed));
-    dbg(DBG_MED, "warn_output_allowed: %s", t_or_f(warn_output_allowed));
-    dbg(DBG_MED, "err_output_allowed: %s", t_or_f(err_output_allowed));
-    dbg(DBG_MED, "usage_output_allowed: %s", t_or_f(usage_output_allowed));
-    dbg(DBG_MED, "msg_warn_silent: %s", t_or_f(msg_warn_silent));
+    dbg(DBG_MED, "msg_output_allowed: %s", booltostr(msg_output_allowed));
+    dbg(DBG_MED, "dbg_output_allowed: %s", booltostr(dbg_output_allowed));
+    dbg(DBG_MED, "warn_output_allowed: %s", booltostr(warn_output_allowed));
+    dbg(DBG_MED, "err_output_allowed: %s", booltostr(err_output_allowed));
+    dbg(DBG_MED, "usage_output_allowed: %s", booltostr(usage_output_allowed));
+    dbg(DBG_MED, "msg_warn_silent: %s", booltostr(msg_warn_silent));
     dbg(DBG_MED, "msg() output: %s",
 	(msg_output_allowed == true && (msg_warn_silent == false || verbosity_level > 0)) ?
 	"allowed" : "silenced");
