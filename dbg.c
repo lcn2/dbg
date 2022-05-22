@@ -86,7 +86,7 @@ static char const * const usage =
 void
 msg(char const *fmt, ...)
 {
-    va_list ap;			/* argument pointer */
+    va_list ap;		/* variable argument list */
     int saved_errno;	/* errno at function start */
 
     /*
@@ -95,7 +95,7 @@ msg(char const *fmt, ...)
     saved_errno = errno;
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -113,7 +113,7 @@ msg(char const *fmt, ...)
     vmsg(fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -126,11 +126,11 @@ msg(char const *fmt, ...)
 
 
 /*
- * vmsg - print a generic message
+ * vmsg - print a generic message in va_list form
  *
  * given:
  *	fmt	format of the warning
- *	ap	va_list
+ *	ap	variable argument list
  *
  * Example:
  *
@@ -193,7 +193,7 @@ vmsg(char const *fmt, va_list ap)
 void
 dbg(int level, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
     int saved_errno;	/* errno at function start */
 
     /*
@@ -202,7 +202,7 @@ dbg(int level, char const *fmt, ...)
     saved_errno = errno;
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -220,7 +220,7 @@ dbg(int level, char const *fmt, ...)
     vdbg(level, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -233,12 +233,12 @@ dbg(int level, char const *fmt, ...)
 
 
 /*
- * vdbg - print debug message if we are verbose enough
+ * vdbg - print debug message if we are verbose enough in va_list form
  *
  * given:
  *	level	print message if >= verbosity level
  *	fmt	format of the warning
- *	ap	va_list
+ *	ap	variable argument list
  *
  * Example:
  *
@@ -327,8 +327,15 @@ vdbg(int level, char const *fmt, va_list ap)
 void
 warn(char const *name, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
     int saved_errno;	/* errno at function start */
+
+    /*
+     * silence warn() if -q and -v 0
+     */
+    if (msg_warn_silent == true && verbosity_level <= 0) {
+	warn_output_allowed = false;
+    }
 
     if (!warn_output_allowed) {
 	/* if warn output not allowed return without doing anything */
@@ -341,16 +348,9 @@ warn(char const *name, char const *fmt, ...)
     saved_errno = errno;
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
-
-    /*
-     * silence warn() if -q and -v 0
-     */
-    if (msg_warn_silent == true && verbosity_level <= 0) {
-	warn_output_allowed = false;
-    }
 
     /*
      * NOTE: We cannot use warn because this is the warn function!
@@ -362,7 +362,7 @@ warn(char const *name, char const *fmt, ...)
     vwarn(name, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -375,12 +375,12 @@ warn(char const *name, char const *fmt, ...)
 
 
 /*
- * vwarn - issue a warning message using a fmt / va_list pair
+ * vwarn - issue a warning message in va_list form
  *
  * given:
  *	name	name of function issuing the warning
  *	fmt	format of the warning
- *	ap	va_list
+ *	ap	variable argument list
  *
  * Example:
  *
@@ -395,6 +395,13 @@ vwarn(char const *name, char const *fmt, va_list ap)
     int ret;		/* libc function return code */
     int saved_errno;	/* errno at function start */
 
+    /*
+     * silence warn() if -q and -v 0
+     */
+    if (msg_warn_silent == true && verbosity_level <= 0) {
+	warn_output_allowed = false;
+    }
+
     if (!warn_output_allowed) {
 	/* if warn output not allowed return without doing anything */
 	return;
@@ -404,13 +411,6 @@ vwarn(char const *name, char const *fmt, va_list ap)
      * save errno so we can restore it before returning
      */
     saved_errno = errno;
-
-    /*
-     * silence warn() if -q and -v 0
-     */
-    if (msg_warn_silent == true && verbosity_level <= 0) {
-	warn_output_allowed = false;
-    }
 
     /*
      * NOTE: We cannot use warn because this is the warn function!
@@ -491,22 +491,8 @@ vwarn(char const *name, char const *fmt, va_list ap)
 void
 warnp(char const *name, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
     int saved_errno;	/* errno at function start */
-
-    if (!warn_output_allowed) {
-	/* if warn output is not allowed return without doing anything */
-	return;
-    }
-    /*
-     * save errno so we can restore it before returning
-     */
-    saved_errno = errno;
-
-    /*
-     * start the var arg setup and fetch our first arg
-     */
-    va_start(ap, fmt);
 
     /*
      * silence warn() if -q and -v 0
@@ -514,6 +500,21 @@ warnp(char const *name, char const *fmt, ...)
     if (msg_warn_silent == true && verbosity_level <= 0) {
 	warn_output_allowed = false;
     }
+
+    if (!warn_output_allowed) {
+	/* if warn output is not allowed return without doing anything */
+	return;
+    }
+
+    /*
+     * save errno so we can restore it before returning
+     */
+    saved_errno = errno;
+
+    /*
+     * stdarg variable argument list setup
+     */
+    va_start(ap, fmt);
 
     /*
      * NOTE: We cannot use warn because this is the warn function!
@@ -525,7 +526,7 @@ warnp(char const *name, char const *fmt, ...)
     vwarnp(name, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -538,12 +539,12 @@ warnp(char const *name, char const *fmt, ...)
 
 
 /*
- * vwarnp - issue a warning message with errno information using a fmt / va_list pair
+ * vwarnp - issue a warning message with errno information in va_list form
  *
  * given:
  *	name	name of function issuing the warning
  *	fmt	format of the warning
- *	ap	va_list
+ *	ap	variable argument list
  *
  * Example:
  *
@@ -558,21 +559,22 @@ vwarnp(char const *name, char const *fmt, va_list ap)
     int ret;		/* libc function return code */
     int saved_errno;	/* errno at function start */
 
-    if (!warn_output_allowed) {
-	/* if warn output is not allowed return without doing anything */
-	return;
-    }
-    /*
-     * save errno so we can restore it before returning
-     */
-    saved_errno = errno;
-
     /*
      * silence warn() if -q and -v 0
      */
     if (msg_warn_silent == true && verbosity_level <= 0) {
 	warn_output_allowed = false;
     }
+
+    if (!warn_output_allowed) {
+	/* if warn output is not allowed return without doing anything */
+	return;
+    }
+
+    /*
+     * save errno so we can restore it before returning
+     */
+    saved_errno = errno;
 
     /*
      * NOTE: We cannot use warn because this is the warn function!
@@ -652,10 +654,10 @@ vwarnp(char const *name, char const *fmt, va_list ap)
 void
 err(int exitcode, char const *name, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -682,7 +684,7 @@ err(int exitcode, char const *name, char const *fmt, ...)
     verr(exitcode, name, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -695,13 +697,13 @@ err(int exitcode, char const *name, char const *fmt, ...)
 
 
 /*
- * verr - issue a fatal error message and exit
+ * verr - issue a fatal error message and exit in va_list form
  *
  * given:
  *	exitcode	value to exit with
  *	name		name of function issuing the error
- *	fmt	format of the warning
- *	ap	va_list
+ *	fmt		format of the warning
+ *	ap		variable argument list
  *
  * Example:
  *
@@ -796,10 +798,10 @@ verr(int exitcode, char const *name, char const *fmt, va_list ap)
 void
 errp(int exitcode, char const *name, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -824,7 +826,7 @@ errp(int exitcode, char const *name, char const *fmt, ...)
     verrp(exitcode, name, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -837,13 +839,13 @@ errp(int exitcode, char const *name, char const *fmt, ...)
 
 
 /*
- * verrp - issue a fatal error message with errno information and exit
+ * verrp - issue a fatal error message with errno information and exit in va_list form
  *
  * given:
  *	exitcode	value to exit with
  *	name		name of function issuing the warning
- *	fmt	format of the warning
- *	ap	va_list
+ *	fmt		format of the warning
+ *	ap		variable argument list
  *
  * Example:
  *
@@ -947,10 +949,10 @@ verrp(int exitcode, char const *name, char const *fmt, va_list ap)
 void
 werr(int error_code, char const *name, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -977,20 +979,20 @@ werr(int error_code, char const *name, char const *fmt, ...)
     vwerr(error_code, name, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 }
 
 
 /*
- * vwerr - issue an error message as a warning
+ * vwerr - issue an error message as a warning in va_list form
  *
  * given:
  *	error_code	error code
  *	name		name of function issuing the error
- *	fmt	format of the warning
- *	ap	va_list
+ *	fmt		format of the warning
+ *	ap		variable argument list
  *
  * Example:
  *
@@ -1076,10 +1078,10 @@ vwerr(int error_code, char const *name, char const *fmt, va_list ap)
 void
 werrp(int error_code, char const *name, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -1104,20 +1106,20 @@ werrp(int error_code, char const *name, char const *fmt, ...)
     vwerrp(error_code, name, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 }
 
 
 /*
- * vwerrp - issue an error message with errno information
+ * vwerrp - issue an error message with errno information in va_list form
  *
  * given:
  *	error_code	error code
  *	name		name of function issuing the warning
- *	fmt	format of the warning
- *	ap	va_list
+ *	fmt		format of the warning
+ *	ap		variable argument list
  *
  * Example:
  *
@@ -1208,7 +1210,7 @@ vwerrp(int error_code, char const *name, char const *fmt, va_list ap)
 void
 fprintf_usage(int exitcode, FILE *stream, char const *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
     int saved_errno;	/* errno at function start */
 
     /*
@@ -1229,7 +1231,7 @@ fprintf_usage(int exitcode, FILE *stream, char const *fmt, ...)
     saved_errno = errno;
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -1239,7 +1241,7 @@ fprintf_usage(int exitcode, FILE *stream, char const *fmt, ...)
     vfprintf_usage(exitcode, stream, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -1260,14 +1262,14 @@ fprintf_usage(int exitcode, FILE *stream, char const *fmt, ...)
 
 
 /*
- * vfprintf_usage - print command line usage and perhaps exit
+ * vfprintf_usage - print command line usage and perhaps exit in va_list form
  *
  * given:
- *	exitcode	- >= 0, exit with this code
+ *	exitcode	>= 0, exit with this code
  *			  < 0, just return
- *	stream		- stream to print on
+ *	stream		stream to print on
  *	fmt		format of the warning
- *	ap		va_list
+ *	ap		variable argument list
  */
 void
 vfprintf_usage(int exitcode, FILE *stream, char const *fmt, va_list ap)
@@ -1348,10 +1350,10 @@ vfprintf_usage(int exitcode, FILE *stream, char const *fmt, va_list ap)
 void
 warn_or_err(int exitcode, const char *name, bool test, const char *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -1378,7 +1380,7 @@ warn_or_err(int exitcode, const char *name, bool test, const char *fmt, ...)
     vwarn_or_err(exitcode, name, test, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -1390,14 +1392,14 @@ warn_or_err(int exitcode, const char *name, bool test, const char *fmt, ...)
 
 
 /*
- * vwarn_or_err - issue a warning or an error depending on test
+ * vwarn_or_err - issue a warning or an error depending on test in va_list form
  *
  * given:
  *	exitcode	value to exit with
  *	name		name of function issuing the warning
  *	test		true ==> call warn(), false ==> call err()
- *	fmt	format of the warning
- *	ap	va_list
+ *	fmt		format of the warning
+ *	ap		variable argument list
  *
  * Example:
  *
@@ -1473,10 +1475,10 @@ vwarn_or_err(int exitcode, const char *name, bool test, const char *fmt, va_list
 void
 warnp_or_errp(int exitcode, const char *name, bool test, const char *fmt, ...)
 {
-    va_list ap;		/* argument pointer */
+    va_list ap;		/* variable argument list */
 
     /*
-     * start the var arg setup and fetch our first arg
+     * stdarg variable argument list setup
      */
     va_start(ap, fmt);
 
@@ -1503,7 +1505,7 @@ warnp_or_errp(int exitcode, const char *name, bool test, const char *fmt, ...)
     vwarnp_or_errp(exitcode, name, test, fmt, ap);
 
     /*
-     * clean up stdarg stuff
+     * stdarg variable argument list cleanup
      */
     va_end(ap);
 
@@ -1515,14 +1517,14 @@ warnp_or_errp(int exitcode, const char *name, bool test, const char *fmt, ...)
 
 
 /*
- * warnp_or_errp - issue a warning or an error depending on test
+ * vwarnp_or_errp - issue a warning or an error depending on test in va_list form
  *
  * given:
  *	exitcode	value to exit with
  *	name		name of function issuing the warning
  *	test		true ==> call warn(), false ==> call err()
  *	fmt		format of the warning
- *	ap		va_list
+ *	ap		variable argument list
  *
  * Example:
  *
