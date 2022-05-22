@@ -30,23 +30,31 @@
 SHELL= /bin/bash
 
 CC= cc
-CFLAGS= -O3 -g3 -pedantic -Wall -Werror -DDBG_TEST
-#CFLAGS= -O3 -g3 -pedantic -Wall -Werror -DDBG_TEST -DDBG_LINT
+CFLAGS= -O3 -g3 -pedantic -Wall
+#CFLAGS= -O3 -g3 -pedantic -Wall -Werror
+CP= cp
 RM= rm
 GREP= grep
 CAT= cat
 
 DESTDIR= /usr/local/bin
 
-TARGETS= dbg.o dbg
+TARGETS= dbg.o dbg_test
 
 all: ${TARGETS}
 
 dbg.o: dbg.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg.c -c
 
-dbg: dbg.c dbg.h Makefile
-	${CC} ${CFLAGS} dbg.c -o $@
+dbg_test.c: dbg.c Makefile
+	${RM} -f $@
+	${CP} -v -f dbg.c $@
+
+dbg_test.o: dbg_test.c dbg.h Makefile
+	${CC} ${CFLAGS} -DDBG_TEST dbg_test.c -c
+
+dbg_test: dbg_test.o Makefile
+	${CC} ${CFLAGS} dbg_test.o -o $@
 
 configure:
 	@echo nothing to $@
@@ -58,29 +66,30 @@ clean:
 
 clobber: clean
 	${RM} -f ${TARGETS}
+	${RM} -f dbg_test.c
 
 install: all
 	@echo nothing to $@
 
-test: dbg Makefile
-	${RM} -f dbg.out
-	@echo "RUNNING: dbg"
-	@echo "./dbg -e 2 foo bar baz >dbg.out 2>&1"
-	@-./dbg -v 1 -e 2 foo bar baz > dbg.out 2>&1; \
+test: dbg_test Makefile
+	${RM} -f dbg_test.out
+	@echo "RUNNING: dbg_test"
+	@echo "./dbg_test -e 2 foo bar baz >dbg_test.out 2>&1"
+	@-./dbg_test -v 1 -e 2 foo bar baz > dbg_test.out 2>&1; \
 	  status="$$?"; \
 	  if [[ $$status -ne 5 ]]; then \
-	    echo "exit status of dbg: $$status != 5"; \
+	    echo "exit status of dbg_test: $$status != 5"; \
 	    exit 21; \
 	  else \
-	      ${GREP} -q '^FATAL\[5\]: main: simulated error, foo: foo bar: bar errno\[2\]: No such file or directory$$' dbg.out; \
+	      ${GREP} -q '^FATAL\[5\]: main: simulated error, foo: foo bar: bar errno\[2\]: No such file or directory$$' dbg_test.out; \
 	      status="$$?"; \
 	      if [[ $$status -ne 0 ]]; then \
-		echo "ERROR: did not find the correct dbg error message" 1>&2; \
-		echo "ERROR: beginning dbg.out contents" 1>&2; \
-		${CAT} dbg.out 1>&2; \
-		echo "ERROR: dbg.out contents complete" 1>&2; \
+		echo "ERROR: did not find the correct dbg_test error message" 1>&2; \
+		echo "ERROR: beginning dbg_test.out contents" 1>&2; \
+		${CAT} dbg_test.out 1>&2; \
+		echo "ERROR: dbg_test.out contents complete" 1>&2; \
 		exit 22; \
 	      else \
-		echo "PASSED: dbg"; \
+		echo "PASSED: dbg_test"; \
 	      fi; \
 	  fi
