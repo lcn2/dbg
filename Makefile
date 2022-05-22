@@ -66,7 +66,7 @@ clean:
 
 clobber: clean
 	${RM} -f ${TARGETS}
-	${RM} -f dbg_test.c
+	${RM} -f dbg_test.c dbg_test.o dbg_test.out
 
 install: all
 	@echo nothing to $@
