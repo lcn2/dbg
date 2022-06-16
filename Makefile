@@ -39,7 +39,7 @@ CAT= cat
 
 DESTDIR= /usr/local/bin
 
-TARGETS= dbg.o dbg_test
+TARGETS= dbg.o dbg_test dbg_example
 
 all: ${TARGETS}
 
@@ -56,12 +56,17 @@ dbg_test.o: dbg_test.c dbg.h Makefile
 dbg_test: dbg_test.o Makefile
 	${CC} ${CFLAGS} dbg_test.o -o $@
 
+dbg_example.o:  dbg_example.c dbg.h Makefile
+	${CC} ${CFLAGS} dbg_example.c -c
+
+dbg_example: dbg_example.o dbg.o Makefile
+	${CC} ${CFLAGS} dbg_example.o dbg.o -o $@
+
 configure:
 	@echo nothing to $@
 
 clean:
 	${RM} -f dbg.o
-	${RM} -rf dbg.dSYM
 	${RM} -f dbg.out
 
 clobber: clean
