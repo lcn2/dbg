@@ -86,7 +86,7 @@ test: dbg_test Makefile
 	    echo "exit status of dbg_test: $$status != 5"; \
 	    exit 21; \
 	  else \
-	      ${GREP} -q '^FATAL\[5\]: main: simulated error, foo: foo bar: bar errno\[2\]: No such file or directory$$' dbg_test.out; \
+	      ${GREP} -q '^ERROR\[5\]: main: simulated error, foo: foo bar: bar: errno\[2\]: No such file or directory$$' dbg_test.out; \
 	      status="$$?"; \
 	      if [[ $$status -ne 0 ]]; then \
 		echo "ERROR: did not find the correct dbg_test error message" 1>&2; \
