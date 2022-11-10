@@ -66,7 +66,7 @@ configure:
 	@echo nothing to $@
 
 clean:
-	${RM} -f dbg.o
+	${RM} -f dbg.o dbg_example.o
 	${RM} -f dbg.out
 
 clobber: clean
