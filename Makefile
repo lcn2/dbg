@@ -1,6 +1,6 @@
 #!/usr/bin/make
 #
-# dbg - example of how to use usage(), dbg(), warn(), err()
+# dbg - info, debug, warning, error and usage message facilities
 #
 # Copyright (c) 1989,1997,2018-2022 by Landon Curt Noll.  All Rights Reserved.
 #
@@ -27,24 +27,119 @@
 # Share and enjoy! :-)
 
 
-SHELL= /bin/bash
+#############
+# utilities #
+#############
 
+# suggestion: List utility filenames, not paths.
+#	      Do not list shell builtin (echo, cd, ...) tools.
+#	      Keep the list in alphabetical order.
+
+AR= ar
+CAT= cat
 CC= cc
+CP= cp
+GREP= grep
+RM= rm
+SHELL= bash
+
+
+##################
+# How to compile #
+##################
+
 CFLAGS= -O3 -g3 -pedantic -Wall
 #CFLAGS= -O3 -g3 -pedantic -Wall -Werror
-CP= cp
-RM= rm
-GREP= grep
-CAT= cat
+
+
+###############
+# source code #
+###############
+
+# ALL: source files that are permanent (not made, nor removed)
+
+C_SRC= dbg.c dbg_example.c dbg_test.c
+H_SRC= dbg.h
+
+ALL_SRC= ${C_SRC} ${H_SRC}
+
+
+######################
+# intermediate files #
+######################
+
+# NOTE: ${LIB_OBJS} are objects to put into a library and removed by make clean
+
+LIB_OBJS= dbg.o
+
+# NOTE: ${OTHER_OBJS} are objects NOT put into a library and removed by make clean
+
+OTHER_OBJS= dbg_test.o dbg_example.o
+
+# NOTE: intermediate files to make and removed by make clean
+
+BUILT_C_SRC= dbg_test.c
+BUILT_H_SRC=
+
+ALL_BUILT_SRC= ${BUILT_C_SRC} ${BUILT_H_SRC}
+
+# all intermediate files and removed by make clean
+
+ALL_OBJS= ${LIB_OBJS} ${OTHER_OBJS}
+
+
+#######################
+# install information #
+#######################
+
+# where to install
 
 DESTDIR= /usr/local/bin
 
-TARGETS= dbg.o dbg_test dbg_example
 
-.PHONY: all
+######################
+# target information #
+######################
 
-all: ${TARGETS}
+# may be used outside of this directory
+
+EXTERN_H= dbg.h
+EXTERN_O= dbg.o
+EXTERN_LIBA= dbg.a
+
+# NOTE: ${EXTERN_CLOBBER} used outside of this directory and removed by make clobber
+
+EXTERN_CLOBBER= ${EXTERN_O} ${EXTERN_LIBA}
+
+ALL_EXTERN= ${EXTERN_H} ${EXTERN_O} ${EXTERN_LIBA}
+
+# what to make by all but NOT to removed by clobber (because they are not files)
+
+ALL_OTHER_TARGETS= ${ALL_EXTERN} extern_include extern_objs extern_liba extern_all
+
+# what to make by all and removed by clobber
+
+TARGETS= dbg_test dbg_example
+
+
+###########################################
+# all rule - default rule - must be first #
+###########################################
+
+all: ${TARGETS} ${ALL_OTHER_TARGETS}
 	@:
+
+
+######################################################
+# List rules that do not create themselves as .PHONY #
+######################################################
+
+.PHONY: all configure clean clobber install test extern_include extern_objs extern_liba
+
+
+################
+# what to make #
+################
 
 dbg.o: dbg.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg.c -c
@@ -65,25 +160,36 @@ dbg_example.o:  dbg_example.c dbg.h Makefile
 dbg_example: dbg_example.o dbg.o Makefile
 	${CC} ${CFLAGS} dbg_example.o dbg.o -o $@
 
-configure:
-	@echo nothing to $@
+dbg.a: ${LIB_OBJS}
+	${RM} -f $@
+	${AR} -r -c -v $@ $^
 
-clean:
-	${RM} -f dbg.o dbg_example.o
-	${RM} -f dbg.out
 
-clobber: clean
-	${RM} -f ${TARGETS}
-	${RM} -f dbg_test.c dbg_test.o dbg_test.out
+###########################################
+# rules for use by higher level Makefiles #
+###########################################
 
-install: all
-	@echo nothing to $@
+extern_include: ${EXTERN_H}
+	@:
+
+extern_objs: ${EXTERN_O}
+	@:
+
+extern_liba: ${EXTERN_LIBA}
+	@:
+
+extern_all: extern_include extern_objs extern_liba
+	@:
+
+#######################
+# internal make rules #
+#######################
 
 test: dbg_test Makefile
 	${RM} -f dbg_test.out
 	@echo "RUNNING: dbg_test"
 	@echo "./dbg_test -e 2 foo bar baz >dbg_test.out 2>&1"
-	@-./dbg_test -v 1 -e 2 foo bar baz > dbg_test.out 2>&1; \
+	@-./dbg_test -v 1 -e 2 foo bar baz >dbg_test.out 2>&1; \
 	  status="$$?"; \
 	  if [[ $$status -ne 5 ]]; then \
 	    echo "exit status of dbg_test: $$status != 5"; \
@@ -101,3 +207,23 @@ test: dbg_test Makefile
 		echo "PASSED: dbg_test"; \
 	      fi; \
 	  fi
+
+
+#######################
+# common make actions #
+#######################
+
+configure:
+	@echo nothing to $@
+
+clean:
+	${RM} -f ${ALL_OBJS}
+	${RM} -f ${ALL_BUILT_SRC}
+	${RM} -f dbg_test.out
+
+clobber: clean
+	${RM} -f ${TARGETS}
+	${RM} -f ${EXTERN_CLOBBER}
+
+install: all
+	@echo nothing to $@
