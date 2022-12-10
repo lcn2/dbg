@@ -34,12 +34,15 @@
 # suggestion: List utility filenames, not paths.
 #	      Do not list shell builtin (echo, cd, ...) tools.
 #	      Keep the list in alphabetical order.
-
+#
 AR= ar
 CAT= cat
 CC= cc
+CHECKNR= checknr
 CP= cp
+CTAGS= ctags
 GREP= grep
+INSTALL= install
 RM= rm
 SHELL= bash
 
@@ -48,19 +51,57 @@ SHELL= bash
 # How to compile #
 ##################
 
-CFLAGS= -O3 -g3 -pedantic -Wall
-#CFLAGS= -O3 -g3 -pedantic -Wall -Werror
+# C source standards being used
+#
+# This repo supports c11 and later.
+#
+# NOTE: The use of -std=gnu11 is because there are a few older systems
+#       in late 2021 that do not have compilers that (yet) support gnu17.
+#       While there may be even more out of date systems that do not
+#       support gnu11, we have to draw the line somewhere.
+#
+#       --------------------------------------------------
+#
+#       ^^ the line is above :-)
+#
+# TODO - ###################################################################### - TODO #
+# TODO - In 2023 we will will support only c17 so C_STD will become -std=gnu17  - TODO #
+# TODO - ###################################################################### - TODO #
+#
+C_STD= -std=gnu11
+#C_STD= -std=gnu17
+
+# optimization and debug level
+#
+C_OPT= -O3 -g3
+#C_OPT= -O0 -g
+
+# Compiler warnings
+#
+WARN_FLAGS= -pedantic -Wall -Wextra
+#WARN_FLAGS= -pedantic -Wall -Wextra -Werror
+
+# linker options
+#
+LDFLAGS=
+
+# how to compile
+#
+# NOTE: If you use ASAN, set this environment var:
+#       ASAN_OPTIONS="detect_stack_use_after_return=1"
+#
+CFLAGS= ${C_STD} ${C_OPT} ${WARN_FLAGS} ${LDFLAGS}
+#CFLAGS= ${C_STD} -O0 -g ${WARN_FLAGS} ${LDFLAGS} -fsanitize=address -fno-omit-frame-pointer
 
 
 ###############
 # source code #
 ###############
 
-# ALL: source files that are permanent (not made, nor removed)
-
+# source files that are permanent (not made, nor removed)
+#
 C_SRC= dbg.c dbg_example.c dbg_test.c
 H_SRC= dbg.h
-
 ALL_SRC= ${C_SRC} ${H_SRC}
 
 
@@ -69,22 +110,21 @@ ALL_SRC= ${C_SRC} ${H_SRC}
 ######################
 
 # NOTE: ${LIB_OBJS} are objects to put into a library and removed by make clean
-
+#
 LIB_OBJS= dbg.o
 
 # NOTE: ${OTHER_OBJS} are objects NOT put into a library and removed by make clean
-
+#
 OTHER_OBJS= dbg_test.o dbg_example.o
 
 # NOTE: intermediate files to make and removed by make clean
-
+#
 BUILT_C_SRC= dbg_test.c
 BUILT_H_SRC=
-
 ALL_BUILT_SRC= ${BUILT_C_SRC} ${BUILT_H_SRC}
 
 # all intermediate files and removed by make clean
-
+#
 ALL_OBJS= ${LIB_OBJS} ${OTHER_OBJS}
 
 
@@ -93,33 +133,57 @@ ALL_OBJS= ${LIB_OBJS} ${OTHER_OBJS}
 #######################
 
 # where to install
+#
+MAN1_DIR= /usr/local/share/man/man1
+MAN3_DIR= /usr/local/share/man/man3
+MAN8_DIR= /usr/local/share/man/man8
+DEST_INCLUDE= /usr/local/include
+DEST_LIB= /usr/local/lib
+DEST_DIR= /usr/local/bin
 
-DESTDIR= /usr/local/bin
+
+#################################
+# external Makefile information #
+#################################
+
+# may be used outside of this directory
+#
+EXTERN_H= dbg.h
+EXTERN_O= dbg.o
+EXTERN_MAN= ${ALL_MAN_TARGETS}
+EXTERN_LIBA= dbg.a
+
+# NOTE: ${EXTERN_CLOBBER} used outside of this directory and removed by make clobber
+#
+EXTERN_CLOBBER= ${EXTERN_O} ${EXTERN_LIBA}
 
 
 ######################
 # target information #
 ######################
 
-# may be used outside of this directory
+# man pages
+#
+MAN1_TARGETS=
+MAN3_TARGETS= dbg.3
+MAN8_TARGETS=
+ALL_MAN_TARGETS= ${MAN1_TARGETS} ${MAN3_TARGETS} ${MAN8_TARGETS}
 
-EXTERN_H= dbg.h
-EXTERN_O= dbg.o
-EXTERN_LIBA= dbg.a
+# libraries
+#
+LIBA_TARGETS= dbg.a
 
-# NOTE: ${EXTERN_CLOBBER} used outside of this directory and removed by make clobber
-
-EXTERN_CLOBBER= ${EXTERN_O} ${EXTERN_LIBA}
-
-ALL_EXTERN= ${EXTERN_H} ${EXTERN_O} ${EXTERN_LIBA}
+# include files
+#
+H_SRC_TARGETS= dbg.h
 
 # what to make by all but NOT to removed by clobber (because they are not files)
+#
+ALL_OTHER_TARGETS= extern_all
 
-ALL_OTHER_TARGETS= ${ALL_EXTERN} extern_include extern_objs extern_liba extern_all
-
-# what to make by all and removed by clobber
-
-TARGETS= dbg_test dbg_example
+# what to make by all and removed by clobber (and thus not ${ALL_OTHER_TARGETS})
+#
+TARGETS= ${LIBA_TARGETS} dbg_test dbg_example
 
 
 ###########################################
@@ -134,7 +198,8 @@ all: ${TARGETS} ${ALL_OTHER_TARGETS}
 # List rules that do not create themselves as .PHONY #
 ######################################################
 
-.PHONY: all configure clean clobber install test extern_include extern_objs extern_liba
+.PHONY: all configure clean clobber install test \
+	extern_include extern_objs extern_liba extern_man extern_all
 
 
 ################
@@ -144,6 +209,10 @@ all: ${TARGETS} ${ALL_OTHER_TARGETS}
 dbg.o: dbg.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg.c -c
 
+dbg.a: ${LIB_OBJS} Makefile
+	${RM} -f $@
+	${AR} -r -c -v $@ $^
+
 dbg_test.c: dbg.c Makefile
 	${RM} -f $@
 	${CP} -v -f dbg.c $@
@@ -151,18 +220,14 @@ dbg_test.c: dbg.c Makefile
 dbg_test.o: dbg_test.c dbg.h Makefile
 	${CC} ${CFLAGS} -DDBG_TEST dbg_test.c -c
 
-dbg_test: dbg_test.o Makefile
-	${CC} ${CFLAGS} dbg_test.o -o $@
+dbg_test: dbg_test.o dbg.a Makefile
+	${CC} ${CFLAGS} dbg_test.o dbg.a -o $@
 
 dbg_example.o:  dbg_example.c dbg.h Makefile
 	${CC} ${CFLAGS} dbg_example.c -c
 
-dbg_example: dbg_example.o dbg.o Makefile
-	${CC} ${CFLAGS} dbg_example.o dbg.o -o $@
-
-dbg.a: ${LIB_OBJS}
-	${RM} -f $@
-	${AR} -r -c -v $@ $^
+dbg_example: dbg_example.o dbg.a Makefile
+	${CC} ${CFLAGS} dbg_example.o dbg.a -o $@
 
 
 ###########################################
@@ -178,14 +243,17 @@ extern_objs: ${EXTERN_O}
 extern_liba: ${EXTERN_LIBA}
 	@:
 
-extern_all: extern_include extern_objs extern_liba
+extern_man: ${EXTERN_MAN}
+	@:
+
+extern_all: extern_include extern_objs extern_liba extern_man
 	@:
 
 #######################
 # internal make rules #
 #######################
 
-test: dbg_test Makefile
+test: dbg_test checknr Makefile
 	${RM} -f dbg_test.out
 	@echo "RUNNING: dbg_test"
 	@echo "./dbg_test -e 2 foo bar baz >dbg_test.out 2>&1"
@@ -208,6 +276,19 @@ test: dbg_test Makefile
 	      fi; \
 	  fi
 
+# inspect and verify man pages
+#
+checknr: ${ALL_MAN_TARGETS} Makefile
+	@HAVE_CHECKNR="`type -P ${CHECKNR}`"; if [[ -z "$$HAVE_CHECKNR" ]]; then \
+	    echo 'The checknr command could not be found.' 1>&2; \
+	    echo 'The checknr command is required to run this rule.'; 1>&2; \
+	    echo ''; 1>&2; \
+	    exit 1; \
+	else \
+	    echo "${CHECKNR} -c.BR.SS.BI ${ALL_MAN_TARGETS}"; \
+	    ${CHECKNR} -c.BR.SS.BI ${ALL_MAN_TARGETS}; \
+	fi
+
 
 #######################
 # common make actions #
@@ -224,6 +305,21 @@ clean:
 clobber: clean
 	${RM} -f ${TARGETS}
 	${RM} -f ${EXTERN_CLOBBER}
+	${RM} -f tags
 
 install: all
-	@echo nothing to $@
+	${INSTALL} -v -d -m 0775 ${DEST_LIB}
+	${INSTALL} -v -d -m 0775 ${DEST_DIR}
+#none#	${INSTALL} -v -d -m 0775 ${MAN1_DIR}
+	${INSTALL} -v -d -m 0775 ${MAN3_DIR}
+#none#	${INSTALL} -v -d -m 0775 ${MAN8_DIR}
+	${INSTALL} -v -d -m 0775 ${DEST_INCLUDE}
+#none#	${INSTALL} -v -S -m 0444 ${MAN1_TARGETS} ${MAN1_DIR}
+	${INSTALL} -v -S -m 0444 ${MAN3_TARGETS} ${MAN3_DIR}
+#none#	${INSTALL} -v -S -m 0444 ${MAN8_TARGETS} ${MAN8_DIR}
+	${INSTALL} -v -S -m 0444 ${LIBA_TARGETS} ${DEST_LIB}
+	${INSTALL} -v -S -m 0444 ${H_SRC_TARGETS} ${DEST_INCLUDE}
+
+tags: ${ALL_SRC} ${ALL_BUILT_SRC}
+	-${CTAGS} ${ALL_SRC} ${ALL_BUILT_SRC} 2>&1 | \
+	     ${GREP} -E -v 'Duplicate entry|Second entry ignored'

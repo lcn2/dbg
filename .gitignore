@@ -7,3 +7,4 @@ dbg_test
 dbg_test.c
 dbg_test.o
 dbg_test.out
+tags
