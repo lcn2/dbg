@@ -43,6 +43,7 @@ CP= cp
 CTAGS= ctags
 GREP= grep
 INSTALL= install
+RANLIB= ranlib
 RM= rm
 SHELL= bash
 
@@ -190,7 +191,7 @@ TARGETS= ${LIBA_TARGETS} dbg_test dbg_example
 # all rule - default rule - must be first #
 ###########################################
 
-all: ${TARGETS} ${ALL_OTHER_TARGETS}
+all: ${TARGETS} ${ALL_OTHER_TARGETS} Makefile
 	@:
 
 
@@ -206,27 +207,28 @@ all: ${TARGETS} ${ALL_OTHER_TARGETS}
 # what to make #
 ################
 
-dbg.o: dbg.c dbg.h Makefile
+dbg.o: dbg.c dbg.h
 	${CC} ${CFLAGS} dbg.c -c
 
-dbg.a: ${LIB_OBJS} Makefile
+dbg.a: ${LIB_OBJS}
 	${RM} -f $@
-	${AR} -r -c -v $@ $^
+	${AR} -r -u -v $@ $^
+	${RANLIB} $@
 
-dbg_test.c: dbg.c Makefile
+dbg_test.c: dbg.c
 	${RM} -f $@
 	${CP} -v -f dbg.c $@
 
-dbg_test.o: dbg_test.c dbg.h Makefile
+dbg_test.o: dbg_test.c dbg.h
 	${CC} ${CFLAGS} -DDBG_TEST dbg_test.c -c
 
-dbg_test: dbg_test.o dbg.a Makefile
+dbg_test: dbg_test.o dbg.a
 	${CC} ${CFLAGS} dbg_test.o dbg.a -o $@
 
-dbg_example.o:  dbg_example.c dbg.h Makefile
+dbg_example.o:  dbg_example.c dbg.h
 	${CC} ${CFLAGS} dbg_example.c -c
 
-dbg_example: dbg_example.o dbg.a Makefile
+dbg_example: dbg_example.o dbg.a
 	${CC} ${CFLAGS} dbg_example.o dbg.a -o $@
 
 
