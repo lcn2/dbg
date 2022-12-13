@@ -285,7 +285,7 @@ test: dbg_test check_man Makefile
 # inspect and verify man pages
 #
 check_man: ${ALL_MAN_TARGETS} Makefile
-	@HAVE_CHECKNR="`type -P ${CHECKNR}`"; if [[ -z "$$HAVE_CHECKNR" ]]; then \
+	@-HAVE_CHECKNR="`type -P ${CHECKNR}`"; if [[ -z "$$HAVE_CHECKNR" ]]; then \
 	    echo 'The checknr command could not be found.' 1>&2; \
 	    echo 'The checknr command is required to run the $@ rule.' 1>&2; \
 	    echo ''; 1>&2; \
@@ -298,7 +298,8 @@ check_man: ${ALL_MAN_TARGETS} Makefile
 	    ${CHECKNR} -c.BR.SS.BI ${ALL_MAN_TARGETS}; \
 	    status="$$?"; \
 	    if [[ $$status -ne 0 ]]; then \
-		echo 'Warning: ${CHECKNR} failed, error code: $$status'; \
+		echo 'ERROR: checknr: ${CHECKNR} failed, error code: $$status'; \
+		exit 23; \
 	    fi; \
 	fi
 
