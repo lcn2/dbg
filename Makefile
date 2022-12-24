@@ -167,7 +167,8 @@ EXTERN_CLOBBER= ${EXTERN_O} ${EXTERN_LIBA} ${EXTERN_PROG}
 # man pages
 #
 MAN1_TARGETS=
-MAN3_TARGETS= dbg.3
+MAN3_TARGETS= man/man3/dbg.3 man/man3/err.3 man/man3/msg.3 man/man3/warn.3 man/man3/werr.3 \
+	      man/man3/printf_usage.3 man/man3/warn_or_err.3
 MAN8_TARGETS=
 ALL_MAN_TARGETS= ${MAN1_TARGETS} ${MAN3_TARGETS} ${MAN8_TARGETS}
 
@@ -249,7 +250,22 @@ extern_liba: ${EXTERN_LIBA}
 extern_man: ${EXTERN_MAN}
 	@:
 
-dbg.3:
+man/man3/dbg.3:
+	@:
+
+man/man3/warn.3:
+	@:
+
+man/man3/msg.3:
+	@:
+
+man/man3/warn_or_err.3:
+	@:
+
+man/man3/werr.3:
+	@:
+
+man/man3/err.3:
 	@:
 
 extern_prog: ${EXTERN_PROG}
