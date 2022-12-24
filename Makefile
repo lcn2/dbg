@@ -268,6 +268,9 @@ man/man3/werr.3:
 man/man3/err.3:
 	@:
 
+man/man3/printf_usage.3:
+	@:
+
 extern_prog: ${EXTERN_PROG}
 	@:
 
