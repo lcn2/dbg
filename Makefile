@@ -1,8 +1,8 @@
-#!/usr/bin/make
+#!/usr/bin/env make
 #
 # dbg - info, debug, warning, error and usage message facilities
 #
-# Copyright (c) 1989,1997,2018-2022 by Landon Curt Noll.  All Rights Reserved.
+# Copyright (c) 1989,1997,2018-2023 by Landon Curt Noll.  All Rights Reserved.
 #
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby granted,
@@ -39,13 +39,83 @@ AR= ar
 CAT= cat
 CC= cc
 CHECKNR= checknr
+CMP= cmp
 CP= cp
 CTAGS= ctags
 GREP= grep
+INDEPEND= independ
 INSTALL= install
+PICKY= picky
 RANLIB= ranlib
 RM= rm
+SED= sed
+SEQCEXIT= seqcexit
 SHELL= bash
+
+
+####################
+# Makefile control #
+####################
+
+# The name of this directory
+#
+# This value is used to print the generic name of this directory
+# so that various echo statements below can use this name
+# to help distinguish themselves from echo statements used
+# by Makefiles in other directories.
+#
+OUR_NAME= dbg
+
+# Q= @					do not echo internal Makefile actions (quiet mode)
+# Q=					echo internal Makefile actions (debug / verbose mode)
+#
+#Q=
+Q= @
+
+# V= @:					do not echo debug statements (quiet mode)
+# V= @					echo debug statements (debug / verbose mode)
+#
+V= @:
+#V= @
+
+# S= @:					do not echo start or end of a make rule (quiet mode)
+# S= @					echo start or end of a make rule (debug / verbose mode)
+#
+#S= @:
+S= @
+
+# E= @:					do not echo calling make in another directory (quiet mode)
+# E= @					echo calling make in another directory (debug / verbose mode)
+#
+E=
+#E= @
+
+# Q= implies -v 0
+# else -v 1
+#
+ifeq ($(strip ${Q}),@)
+Q_V_OPTION="0"
+else
+Q_V_OPTION="1"
+endif
+
+# I= @					do not echo install commands (quiet mode)
+# I=					echo install commands (debug / verbose mode
+#
+I=
+#I= @
+
+# INSTALL_V=				install w/o -v flag (quiet mode)
+# INSTALL_V= -v				install with -v (debug / verbose mode
+#
+#INSTALL_V=
+INSTALL_V= -v
+
+# MAKE_CD_Q= --no-print-directory	silence make cd messages (quiet mode)
+# MAKE_CD_Q=				silence make cd messages (quiet mode)
+#
+MAKE_CD_Q= --no-print-directory
+#MAKE_CD_Q=
 
 
 ##################
@@ -65,9 +135,9 @@ SHELL= bash
 #
 #       ^^ the line is above :-)
 #
-# TODO - ###################################################################### - TODO #
-# TODO - In 2023 we will will support only c17 so C_STD will become -std=gnu17  - TODO #
-# TODO - ###################################################################### - TODO #
+# TODO - ############################################################################### - TODO #
+# TODO - Sometime in 2023 we will will support only c17 so C_STD will become -std=gnu17  - TODO #
+# TODO - ############################################################################### - TODO #
 #
 C_STD= -std=gnu11
 #C_STD= -std=gnu17
@@ -88,9 +158,6 @@ LDFLAGS=
 
 # how to compile
 #
-# NOTE: If you use ASAN, set this environment var:
-#       ASAN_OPTIONS="detect_stack_use_after_return=1"
-#
 CFLAGS= ${C_STD} ${C_OPT} ${WARN_FLAGS} ${LDFLAGS}
 #CFLAGS= ${C_STD} -O0 -g ${WARN_FLAGS} ${LDFLAGS} -fsanitize=address -fno-omit-frame-pointer
 
@@ -103,7 +170,33 @@ CFLAGS= ${C_STD} ${C_OPT} ${WARN_FLAGS} ${LDFLAGS}
 #
 C_SRC= dbg.c dbg_example.c dbg_test.c
 H_SRC= dbg.h
-ALL_SRC= ${C_SRC} ${H_SRC}
+
+# source files that do not conform to strict picky standards
+#
+LESS_PICKY_CSRC=
+LESS_PICKY_HSRC=
+
+# all shell scripts
+#
+SH_FILES=
+
+# all man pages that NOT built and NOT removed by make clobber
+#
+MAN1_PAGES=
+MAN3_PAGES= man/man3/dbg.3 man/man3/err.3 man/man3/msg.3 man/man3/warn.3 man/man3/werr.3 \
+	man/man3/printf_usage.3 man/man3/warn_or_err.3 \
+	man/man3/errp.3 man/man3/fdbg.3 man/man3/ferr.3 man/man3/ferrp.3 man/man3/fmsg.3 \
+	man/man3/fprintf_usage.3 man/man3/fwarn.3 man/man3/fwarn_or_err.3 man/man3/fwarnp.3 \
+	man/man3/fwerr.3 man/man3/fwerrp.3 man/man3/sndbg.3 man/man3/snmsg.3 man/man3/snwarn.3 \
+	man/man3/snwarnp.3 man/man3/snwerr.3 man/man3/snwerrp.3 man/man3/vdbg.3 man/man3/verr.3 \
+	man/man3/verrp.3 man/man3/vfdbg.3 man/man3/vferr.3 man/man3/vferrp.3 man/man3/vfmsg.3 \
+	man/man3/vfprintf_usage.3 man/man3/vfwarn.3 man/man3/vfwarn_or_err.3 man/man3/vfwarnp.3 \
+	man/man3/vfwerr.3 man/man3/vfwerrp.3 man/man3/vmsg.3 man/man3/vprintf_usage.3 man/man3/vsndbg.3 \
+	man/man3/vsnmsg.3 man/man3/vsnwarn.3 man/man3/vsnwarnp.3 man/man3/vsnwerr.3 man/man3/vsnwerrp.3 \
+	man/man3/vwarn.3 man/man3/vwarn_or_err.3 man/man3/vwarnp.3 man/man3/vwerr.3 man/man3/vwerrp.3 \
+	man/man3/warnp.3 man/man3/werrp.3
+MAN8_PAGES=
+ALL_MAN_PAGES= ${MAN1_PAGES} ${MAN3_PAGES} ${MAN8_PAGES}
 
 
 ######################
@@ -124,9 +217,22 @@ BUILT_C_SRC= dbg_test.c
 BUILT_H_SRC=
 ALL_BUILT_SRC= ${BUILT_C_SRC} ${BUILT_H_SRC}
 
-# all intermediate files and removed by make clean
+# all intermediate files which are also removed by make clean
 #
 ALL_OBJS= ${LIB_OBJS} ${OTHER_OBJS}
+
+# all source files
+#
+ALL_CSRC= ${C_SRC} ${LESS_PICKY_CSRC} ${BUILT_C_SRC}
+ALL_HSRC= ${H_SRC} ${LESS_PICKY_HSRC} ${BUILT_H_SRC}
+ALL_SRC= ${ALL_CSRC} ${ALL_HSRC} ${SH_FILES}
+
+# all man pages that built and removed by make clobber
+#
+MAN1_BUILT=
+MAN3_BUILT=
+MAN8_BUILT=
+ALL_MAN_BUILT= ${MAN1_BUILT} ${MAN3_BUILT} ${MAN8_BUILT}
 
 
 #######################
@@ -166,50 +272,77 @@ EXTERN_CLOBBER= ${EXTERN_O} ${EXTERN_LIBA} ${EXTERN_PROG}
 
 # man pages
 #
-MAN1_TARGETS=
-MAN3_TARGETS= man/man3/dbg.3 man/man3/err.3 man/man3/msg.3 man/man3/warn.3 man/man3/werr.3 \
-	      man/man3/printf_usage.3 man/man3/warn_or_err.3
-MAN8_TARGETS=
+MAN1_TARGETS= ${MAN1_PAGES} ${MAN1_BUILT}
+MAN3_TARGETS= ${MAN3_PAGES} ${MAN3_BUILT}
+MAN8_TARGETS= ${MAN8_PAGES} ${MAN8_BUILT}
 ALL_MAN_TARGETS= ${MAN1_TARGETS} ${MAN3_TARGETS} ${MAN8_TARGETS}
 
-# libraries
+# libraries to make by all, what to install, and removed by clobber
 #
 LIBA_TARGETS= dbg.a
 
-# include files
+# shell targets to make by all and removed by clobber
+#
+SH_TARGETS=
+
+# program targets to make by all, installed by install, and removed by clobber
+#
+PROG_TARGETS= dbg_test dbg_example
+
+# include files but NOT to removed by clobber
 #
 H_SRC_TARGETS= dbg.h
 
-# what to make by all but NOT to removed by clobber (because they are not files)
+# what to make by all but NOT to removed by clobber
 #
-ALL_OTHER_TARGETS= extern_everything
+ALL_OTHER_TARGETS= ${SH_TARGETS} ${ALL_MAN_PAGES}
 
-# what to make by all and removed by clobber (and thus not ${ALL_OTHER_TARGETS})
+# what to make by all, what to install, and removed by clobber (and thus not ${ALL_OTHER_TARGETS})
 #
-TARGETS= ${LIBA_TARGETS} dbg_test dbg_example
+TARGETS= ${LIBA_TARGETS} ${PROG_TARGETS} ${ALL_MAN_BUILT}
+
+
+############################################################
+# User specific configurations - override Makefile values  #
+############################################################
+
+# The directive below retrieves any user specific configurations from makefile.local.
+#
+# The - before include means it's not an error if the file does not exist.
+#
+# We put this directive just before the first all rule so that you may override
+# or modify any of the above Makefile variables.  To override a value, use := symbols.
+# For example:
+#
+#       CC:= gcc
+#
+-include makefile.local
 
 
 ###########################################
 # all rule - default rule - must be first #
 ###########################################
 
-all: ${TARGETS} ${ALL_OTHER_TARGETS} Makefile
+all: ${TARGETS}
 	@:
 
 
-######################################################
-# List rules that do not create themselves as .PHONY #
-######################################################
+#################################################
+# .PHONY list of rules that do not create files #
+#################################################
 
-.PHONY: all configure clean clobber install test \
-	extern_include extern_objs extern_liba extern_man extern_prog extern_everything
+.PHONY: all \
+	extern_include extern_objs extern_liba extern_man extern_prog extern_everything man/man3/dbg.3 \
+	man/man3/err.3 man/man3/msg.3 man/man3/warn.3 man/man3/werr.3 man/man3/printf_usage.3 man/man3/warn_or_err.3 \
+	test check_man legacy_clean legacy_clobber install_man \
+	configure clean clobber install depend tags
 
 
-################
-# what to make #
-################
+####################################
+# things to make in this directory #
+####################################
 
-dbg.o: dbg.c dbg.h
+dbg.o: dbg.c
 	${CC} ${CFLAGS} dbg.c -c
 
 dbg.a: ${LIB_OBJS}
@@ -221,22 +354,27 @@ dbg_test.c: dbg.c
 	${RM} -f $@
 	${CP} -v -f dbg.c $@
 
-dbg_test.o: dbg_test.c dbg.h
+dbg_test.o: dbg_test.c
 	${CC} ${CFLAGS} -DDBG_TEST dbg_test.c -c
 
 dbg_test: dbg_test.o dbg.a
 	${CC} ${CFLAGS} dbg_test.o dbg.a -o $@
 
-dbg_example.o:  dbg_example.c dbg.h
+dbg_example.o: dbg_example.c
 	${CC} ${CFLAGS} dbg_example.c -c
 
 dbg_example: dbg_example.o dbg.a
 	${CC} ${CFLAGS} dbg_example.o dbg.a -o $@
 
 
-###########################################
-# rules for use by higher level Makefiles #
-###########################################
+#########################################################
+# rules that invoke Makefile rules in other directories #
+#########################################################
+
+
+####################################
+# rules for use by other Makefiles #
+####################################
 
 extern_include: ${EXTERN_H}
 	@:
@@ -248,6 +386,12 @@ extern_liba: ${EXTERN_LIBA}
 	@:
 
 extern_man: ${EXTERN_MAN}
+	@:
+
+extern_prog: ${EXTERN_PROG}
+	@:
+
+extern_everything: extern_include extern_objs extern_liba extern_man extern_prog
 	@:
 
 man/man3/dbg.3:
@@ -271,91 +415,230 @@ man/man3/err.3:
 man/man3/printf_usage.3:
 	@:
 
-extern_prog: ${EXTERN_PROG}
-	@:
 
-extern_everything: extern_include extern_objs extern_liba extern_man extern_prog
-	@:
+###########################################################
+# repo tools - rules for those who maintain the this repo #
+###########################################################
 
-#######################
-# internal make rules #
-#######################
+test:
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	${Q} ${RM} -f dbg_test.out
+	${Q} if [[ ! -x ./dbg_test ]]; then \
+	    echo "${OUR_NAME}: ERROR: executable not found: ./dbg_test" 1>&2; \
+	    echo "${OUR_NAME}: ERROR: unable to perform complete test" 1>&2; \
+	    exit 1; \
+	else \
+	    echo "./dbg_test -e 2 foo bar baz >dbg_test.out 2>&1"; \
+	    ./dbg_test -v 1 -e 2 foo bar baz >dbg_test.out 2>&1; \
+	    EXIT_CODE="$$?"; \
+	    if [[ $$EXIT_CODE -ne 5 ]]; then \
+		echo "${OUR_NAME}: exit status of dbg_test: $$EXIT_CODE != 5"; \
+		exit 21; \
+	    else \
+		${GREP} -q '^ERROR\[5\]: main: simulated error, foo: foo bar: bar: errno\[2\]: No such file or directory$$' dbg_test.out; \
+		EXIT_CODE="$$?"; \
+		if [[ $$EXIT_CODE -ne 0 ]]; then \
+		    echo "${OUR_NAME}: ERROR: did not find the correct dbg_test error message" 1>&2; \
+		    echo "${OUR_NAME}: ERROR: beginning dbg_test.out contents" 1>&2; \
+		    ${CAT} dbg_test.out 1>&2; \
+		    echo "${OUR_NAME}: ERROR: dbg_test.out contents complete" 1>&2; \
+		    exit 22; \
+		else \
+		    echo "${OUR_NAME}: PASSED: dbg_test"; \
+		fi; \
+	    fi; \
+	fi
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
 
-test: dbg_test check_man Makefile
-	${RM} -f dbg_test.out
-	@echo "RUNNING: dbg_test"
-	@echo "./dbg_test -e 2 foo bar baz >dbg_test.out 2>&1"
-	@-./dbg_test -v 1 -e 2 foo bar baz >dbg_test.out 2>&1; \
-	  status="$$?"; \
-	  if [[ $$status -ne 5 ]]; then \
-	    echo "exit status of dbg_test: $$status != 5"; \
-	    exit 21; \
-	  else \
-	      ${GREP} -q '^ERROR\[5\]: main: simulated error, foo: foo bar: bar: errno\[2\]: No such file or directory$$' dbg_test.out; \
-	      status="$$?"; \
-	      if [[ $$status -ne 0 ]]; then \
-		echo "ERROR: did not find the correct dbg_test error message" 1>&2; \
-		echo "ERROR: beginning dbg_test.out contents" 1>&2; \
-		${CAT} dbg_test.out 1>&2; \
-		echo "ERROR: dbg_test.out contents complete" 1>&2; \
-		exit 22; \
-	      else \
-		echo "PASSED: dbg_test"; \
-	      fi; \
-	  fi
+# sequence exit codes
+#
+seqcexit: ${ALL_CSRC}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	${Q} if ! type -P ${SEQCEXIT} >/dev/null 2>&1; then \
+	    echo 'The ${SEQCEXIT} tool could not be found.' 1>&2; \
+	    echo 'The ${SEQCEXIT} tool is required for the $@ rule.'; 1>&2; \
+	    echo ''; 1>&2; \
+	    echo 'See the following GitHub repo for ${SEQCEXIT}:'; 1>&2; \
+	    echo ''; 1>&2; \
+	    echo '    https://github.com/lcn2/seqcexit'; 1>&2; \
+	    echo ''; 1>&2; \
+	    exit 1; \
+	else \
+	    echo "${SEQCEXIT} -D werr_sem_val -D werrp_sem_val -- ${ALL_CSRC}"; \
+	    ${SEQCEXIT} -D werr_sem_val -D werrp_sem_val -- ${ALL_CSRC}; \
+	fi
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
+
+picky: ${ALL_SRC}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	${Q} if ! type -P ${PICKY} >/dev/null 2>&1; then \
+	    echo 'The ${PICKY} tool could not be found.' 1>&2; \
+	    echo 'The ${PICKY} tool is required for the $@ rule.' 1>&2; \
+	    echo 1>&2; \
+	    echo 'See the following GitHub repo for ${PICKY}:'; 1>&2; \
+	    echo 1>&2; \
+	    echo '    https://github.com/xexyl/picky' 1>&2; \
+	    echo 1>&2; \
+	    exit 1; \
+	else \
+	    echo "${PICKY} -w132 -u -s -t8 -v -e -- ${C_SRC} ${H_SRC}"; \
+	    ${PICKY} -w132 -u -s -t8 -v -e -- ${C_SRC} ${H_SRC}; \
+	    EXIT_CODE="$$?"; \
+	    if [[ $$EXIT_CODE -ne 0 ]]; then \
+		echo "picky: ERROR: $$EXIT_CODE" 1>&2; \
+		exit 1; \
+	    fi; \
+	fi
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
+
+# inspect and verify shell scripts
+#
+shellcheck:
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	${V} echo "${OUR_NAME}: nothing to do"
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
 
 # inspect and verify man pages
 #
-check_man: ${ALL_MAN_TARGETS} Makefile
-	@-HAVE_CHECKNR="`type -P ${CHECKNR}`"; if [[ -z "$$HAVE_CHECKNR" ]]; then \
-	    echo 'The checknr command could not be found.' 1>&2; \
-	    echo 'The checknr command is required to run the $@ rule.' 1>&2; \
+check_man: ${ALL_MAN_TARGETS}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	-${Q} if ! type -P ${CHECKNR} >/dev/null 2>&1; then \
+	    echo 'The ${CHECKNR} command could not be found.' 1>&2; \
+	    echo 'The ${CHECKNR} command is required to run the $@ rule.' 1>&2; \
 	    echo ''; 1>&2; \
-	    echo 'The source code and install instructions for checknr are available from this GitHub repo:' 1>&2; \
+	    echo 'See the following GitHub repo for ${CHECKNR}:'; 1>&2; \
 	    echo ''; 1>&2; \
 	    echo '    https://github.com/lcn2/checknr' 1>&2; \
 	    echo ''; 1>&2; \
+	    echo 'Or use the package manager in your OS to install it.' 1>&2; \
 	else \
 	    echo "${CHECKNR} -c.BR.SS.BI ${ALL_MAN_TARGETS}"; \
 	    ${CHECKNR} -c.BR.SS.BI ${ALL_MAN_TARGETS}; \
-	    status="$$?"; \
-	    if [[ $$status -ne 0 ]]; then \
-		echo 'ERROR: checknr: ${CHECKNR} failed, error code: $$status'; \
-		exit 23; \
-	    fi; \
 	fi
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
 
 
-#######################
-# common make actions #
-#######################
+# install man pages
+#
+install_man: ${ALL_MAN_TARGETS}
+	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${MAN3_DIR}
+	${I} ${INSTALL} ${INSTALL_V} -m 0444 ${MAN3_TARGETS} ${MAN3_DIR}
+
+# vi/vim tags
+#
+tags: ${ALL_CSRC} ${ALL_HSRC}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	-${Q} ${CTAGS} ${ALL_CSRC} ${ALL_HSRC} 2>&1 | \
+	     ${GREP} -E -v 'Duplicate entry|Second entry ignored'
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
+
+legacy_clean:
+	${V} echo
+	${V} echo "${OUR_NAME}: make $@ starting"
+	${V} echo
+	${V} echo "${OUR_NAME}: nothing to do"
+	${V} echo
+	${V} echo "${OUR_NAME}: make $@ ending"
+
+legacy_clobber: legacy_clean
+	${V} echo
+	${V} echo "${OUR_NAME}: make $@ starting"
+	${V} echo
+	${V} echo "${OUR_NAME}: nothing to do"
+	${V} echo
+	${V} echo "${OUR_NAME}: make $@ ending"
+
+
+###################################
+# standard Makefile utility rules #
+###################################
 
 configure:
-	@echo nothing to $@
+	${V} echo nothing to $@
 
 clean:
-	${RM} -f ${ALL_OBJS}
-	${RM} -f ${ALL_BUILT_SRC}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	${RM} -f ${ALL_OBJS} ${ALL_BUILT_SRC}
 	${RM} -f dbg_test.out
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
 
-clobber: clean
+clobber: legacy_clobber clean
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
 	${RM} -f ${TARGETS}
-	${RM} -f ${EXTERN_CLOBBER}
 	${RM} -f tags
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
 
-install: all
-	${INSTALL} -v -d -m 0775 ${DEST_LIB}
-#none#	${INSTALL} -v -d -m 0775 ${DEST_DIR}
-#none#	${INSTALL} -v -d -m 0775 ${MAN1_DIR}
-	${INSTALL} -v -d -m 0775 ${MAN3_DIR}
-#none#	${INSTALL} -v -d -m 0775 ${MAN8_DIR}
-	${INSTALL} -v -d -m 0775 ${DEST_INCLUDE}
-#none#	${INSTALL} -v -m 0444 ${MAN1_TARGETS} ${MAN1_DIR}
-	${INSTALL} -v -m 0444 ${MAN3_TARGETS} ${MAN3_DIR}
-#none#	${INSTALL} -v -m 0444 ${MAN8_TARGETS} ${MAN8_DIR}
-	${INSTALL} -v -m 0444 ${LIBA_TARGETS} ${DEST_LIB}
-	${INSTALL} -v -m 0444 ${H_SRC_TARGETS} ${DEST_INCLUDE}
+install: all install_man
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo
+	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${DEST_LIB}
+	${I} ${INSTALL} ${INSTALL_V} -m 0444 ${LIBA_TARGETS} ${DEST_LIB}
+	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${DEST_INCLUDE}
+	${I} ${INSTALL} ${INSTALL_V} -m 0444 ${H_SRC_TARGETS} ${DEST_INCLUDE}
+	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${DEST_DIR}
+	${I} ${INSTALL} ${INSTALL_V} -m 0555 ${SH_TARGETS} ${PROG_TARGETS} ${DEST_DIR}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
 
-tags: ${ALL_SRC} ${ALL_BUILT_SRC}
-	-${CTAGS} ${ALL_SRC} ${ALL_BUILT_SRC} 2>&1 | \
-	     ${GREP} -E -v 'Duplicate entry|Second entry ignored'
+
+###############
+# make depend #
+###############
+
+depend: ${ALL_CSRC}
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ starting"
+	${Q} if ! type -P ${INDEPEND} >/dev/null 2>&1; then \
+	    echo '${OUR_NAME}: The ${INDEPEND} command could not be found.' 1>&2; \
+	    echo '${OUR_NAME}: The ${INDEPEND} command is required to run the $@ rule'; 1>&2; \
+	    echo ''; 1>&2; \
+	    echo 'See the following GitHub repo for ${INDEPEND}:'; 1>&2; \
+	    echo ''; 1>&2; \
+	    echo '    https://github.com/lcn2/independ'; 1>&2; \
+	else \
+	    if ! ${GREP} -q '^### DO NOT CHANGE MANUALLY BEYOND THIS LINE$$' Makefile; then \
+	        echo "${OUR_NAME}: make $@ aborting, Makefile missing: ### DO NOT CHANGE MANUALLY BEYOND THIS LINE" 1>&2; \
+		exit 1; \
+	    fi; \
+	    ${SED} -i.orig -n -e '1,/^### DO NOT CHANGE MANUALLY BEYOND THIS LINE$$/p' Makefile; \
+	    ${CC} ${CFLAGS} -MM -I. -DMKIOCCCENTRY_USE ${ALL_CSRC} | ${INDEPEND} >> Makefile; \
+	    if ${CMP} -s Makefile.orig Makefile; then \
+		${RM} -f Makefile.orig; \
+	    else \
+		echo "${OUR_NAME}: Makefile dependencies updated"; \
+		echo; \
+		echo "${OUR_NAME}: Previous version may be found in: Makefile.orig"; \
+	    fi; \
+	fi
+	${S} echo
+	${S} echo "${OUR_NAME}: make $@ ending"
+
+### DO NOT CHANGE MANUALLY BEYOND THIS LINE
+dbg.o: dbg.c dbg.h
+dbg_example.o: dbg.h dbg_example.c
+dbg_test.o: dbg.h dbg_test.c

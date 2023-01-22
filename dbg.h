@@ -1,7 +1,7 @@
 /*
  * dbg - info, debug, warning, error, and usage message facility
  *
- * Copyright (c) 1989,1997,2018-2022 by Landon Curt Noll.  All Rights Reserved.
+ * Copyright (c) 1989,1997,2018-2023 by Landon Curt Noll.  All Rights Reserved.
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby granted,
@@ -41,7 +41,7 @@
 /*
  * definitions
  */
-#define DBG_VERSION "2.6 2022-11-09"		/* format: major.minor YYYY-MM-DD */
+#define DBG_VERSION "2.7 2023-01-21"		/* format: major.minor YYYY-MM-DD */
 
 
 /*
@@ -142,6 +142,7 @@ extern bool warn_output_allowed;	/* false ==> disable warning messages */
 extern bool err_output_allowed;		/* false ==> disable error messages */
 extern bool usage_output_allowed;	/* false ==> disable usage messages */
 extern bool msg_warn_silent;		/* true ==> silence info & warnings if verbosity_level <= 0 */
+extern const char *const dbg_version;	/* library version format: major.minor YYYY-MM-DD */
 
 
 /*
@@ -196,17 +197,21 @@ extern void vsnwarnp(char *str, size_t size, char const *name, char const *fmt, 
 
 extern void err(int exitcode, const char *name, const char *fmt, ...) \
 	__attribute__((noreturn)) __attribute__((format(printf, 3, 4))); /* 3=format 4=params */
-extern void verr(int exitcode, char const *name, char const *fmt, va_list ap);
+extern void verr(int exitcode, char const *name, char const *fmt, va_list ap) \
+	   __attribute__((noreturn));
 extern void ferr(int exitcode, FILE *stream, const char *name, const char *fmt, ...) \
 	__attribute__((noreturn)) __attribute__((format(printf, 4, 5))); /* 4=format 5=params */
-extern void vferr(int exitcode, FILE *stream, char const *name, char const *fmt, va_list ap);
+extern void vferr(int exitcode, FILE *stream, char const *name, char const *fmt, va_list ap) \
+	   __attribute__((noreturn));
 
 extern void errp(int exitcode, const char *name, const char *fmt, ...) \
 	__attribute__((noreturn)) __attribute__((format(printf, 3, 4))); /* 3=format 4=params */
-extern void verrp(int exitcode, char const *name, char const *fmt, va_list ap);
+extern void verrp(int exitcode, char const *name, char const *fmt, va_list ap) \
+	   __attribute__((noreturn));
 extern void ferrp(int exitcode, FILE *stream, const char *name, const char *fmt, ...) \
 	__attribute__((noreturn)) __attribute__((format(printf, 4, 5))); /* 4=format 5=params */
-extern void vferrp(int exitcode, FILE *stream, char const *name, char const *fmt, va_list ap);
+extern void vferrp(int exitcode, FILE *stream, char const *name, char const *fmt, va_list ap) \
+	   __attribute__((noreturn));
 
 extern void werr(int error_code, const char *name, const char *fmt, ...) \
 	__attribute__((format(printf, 3, 4)));		/* 3=format 4=params */

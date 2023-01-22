@@ -76,7 +76,7 @@
  *		     some minor help in forming one, please consider asking by
  *		     opening an issue at dbg repo.
  *
- * Copyright (c) 1989,1997,2018-2022 by Landon Curt Noll.  All Rights Reserved.
+ * Copyright (c) 1989,1997,2018-2023 by Landon Curt Noll.  All Rights Reserved.
  *
  * Permission to use, copy, modify, and distribute this software and
  * its documentation for any purpose and without fee is hereby granted,
@@ -125,6 +125,7 @@ bool warn_output_allowed = true;	/* false ==> disable warning messages */
 bool err_output_allowed = true;		/* false ==> disable error messages */
 bool usage_output_allowed = true;	/* false ==> disable usage messages */
 bool msg_warn_silent = false;		/* true ==> silence info & warnings if verbosity_level <= 0 */
+const char *const dbg_version = DBG_VERSION;	/* library version format: major.minor YYYY-MM-DD */
 
 
 #if defined(DBG_TEST)
@@ -465,8 +466,8 @@ sndbg_write(char *str, size_t size, char const *caller, int level, char const *f
      * write diagnostic to string
      */
     errno = 0;		/* pre-clear errno for warnp() */
-    ret2 = vsnprintf(str+ret, size-ret, fmt, ap);
-    if ((size_t)ret2 >= size-ret) {
+    ret2 = vsnprintf(str+ret, size-(size_t)ret, fmt, ap);
+    if ((size_t)ret2 >= size-(size_t)ret) {
 	warnp(caller, "\nin %s(str, %zu, %s, %s, ap): "
 		      "snprintf returned: %d vsnprintf returned: %d\n",
 		      __func__, size, caller, fmt, ret, ret2);
@@ -649,8 +650,8 @@ snwarn_write(char *str, size_t size, char const *caller, char const *name, char 
      * write warning to string
      */
     errno = 0;		/* pre-clear errno for strerror() */
-    ret2 = vsnprintf(str+ret, size-ret, fmt, ap);
-    if ((size_t)ret2 >= size-ret) {
+    ret2 = vsnprintf(str+ret, size-(size_t)ret, fmt, ap);
+    if ((size_t)ret2 >= size-(size_t)ret) {
 	if (allowed == true) {
 	    /* we cannot call warn() because that would produce an infinite loop! */
 	    (void) fprintf(stderr, "\nWarning: %s: in %s(str, %zu, %s, %s, %s, ap): "
@@ -837,8 +838,8 @@ snwarnp_write(char *str, size_t size, char const *caller, char const *name, char
      * write warning to string
      */
     errno = 0;		/* pre-clear errno for strerror() */
-    ret2 = vsnprintf(str+ret, size-ret, fmt, ap);
-    if ((size_t)ret2 >= size-ret) {
+    ret2 = vsnprintf(str+ret, size-(size_t)ret, fmt, ap);
+    if ((size_t)ret2 >= size-(size_t)ret) {
 	if (allowed == true) {
 	    /* we cannot call warn() because that would produce an infinite loop! */
 	    (void) fprintf(stderr, "\nWarning: %s: in %s(str, %zu, %s, %s, %s, ap): "
@@ -851,8 +852,8 @@ snwarnp_write(char *str, size_t size, char const *caller, char const *name, char
      * write errno details plus newline to string
      */
     errno = 0;		/* pre-clear errno for strerror() */
-    ret3 = snprintf(str+ret+ret2, size-ret-ret2, ": errno[%d]: %s", saved_errno, strerror(saved_errno));
-    if ((size_t)ret3 >= size-ret-ret2) {
+    ret3 = snprintf(str+ret+ret2, size-(size_t)ret-(size_t)ret2, ": errno[%d]: %s", saved_errno, strerror(saved_errno));
+    if ((size_t)ret3 >= size-(size_t)ret-(size_t)ret2) {
 	if (allowed == true) {
 	    /* we cannot call warn() because that would produce an infinite loop! */
 	    (void) fprintf(stderr, "\nWarning: %s: in %s(str, %zu, %s, %s, %s, ap): "
@@ -1021,8 +1022,8 @@ snerr_write(char *str, size_t size, int error_code, char const *caller,
      * write error diagnostic to string
      */
     errno = 0;		/* pre-clear errno for strerror() */
-    ret2 = vsnprintf(str+ret, size-ret, fmt, ap);
-    if ((size_t)ret2 >= size-ret) {
+    ret2 = vsnprintf(str+ret, size-(size_t)ret, fmt, ap);
+    if ((size_t)ret2 >= size-(size_t)ret) {
 	warnp(caller, "\nin %s(str, %zu, %s, %d, %s, %s, ap): "
 		      "snprintf returned: %d vsnprintf returned: %d\n",
 		      __func__, size, caller, error_code, name, fmt, ret, ret2);
@@ -1189,8 +1190,8 @@ snerrp_write(char *str, size_t size, int error_code, char const *caller,
      * write error diagnostic to string
      */
     errno = 0;		/* pre-clear errno for strerror() */
-    ret2 = vsnprintf(str+ret, size-ret, fmt, ap);
-    if ((size_t)ret2 >= size-ret) {
+    ret2 = vsnprintf(str+ret, size-(size_t)ret, fmt, ap);
+    if ((size_t)ret2 >= size-(size_t)ret) {
 	warnp(caller, "\nin %s(str, %zu, %s, %d, %s, %s, ap): "
 		      "snprintf returned: %d vsnprintf returned: %d\n",
 		      __func__, size, caller, error_code, name, fmt, ret, ret2);
@@ -1200,8 +1201,8 @@ snerrp_write(char *str, size_t size, int error_code, char const *caller,
      * write errno details plus newline to string
      */
     errno = 0;		/* pre-clear errno for strerror() */
-    ret3 = snprintf(str+ret+ret2, size-ret-ret2, ": errno[%d]: %s", saved_errno, strerror(saved_errno));
-    if ((size_t)ret3 >= size-ret-ret2) {
+    ret3 = snprintf(str+ret+ret2, size-(size_t)ret-(size_t)ret2, ": errno[%d]: %s", saved_errno, strerror(saved_errno));
+    if ((size_t)ret3 >= size-(size_t)ret-(size_t)ret2) {
 	/* we cannot call warn() because that would produce an infinite loop! */
 	(void) fprintf(stderr, "\nWarning: %s: in %s(str, %zu, %s, %s, %s, ap): "
 			       "snprintf returned: %d vsnprintf returned: %d 2nd snprintf returned: %d\n",
@@ -5578,7 +5579,7 @@ main(int argc, char *argv[])
     while ((i = getopt(argc, argv, "hv:Vqe:")) != -1) {
 	switch (i) {
 	case 'h':	/* -h - write help, to stderr and exit 0 */
-	    fprintf_usage(0, stderr, usage, program, DBG_VERSION); /*ooo*/
+	    fprintf_usage(0, stderr, usage, program, dbg_version); /*ooo*/
 	    not_reached();
 	    break;
 	case 'v':	/* -v verbosity */
@@ -5604,16 +5605,16 @@ main(int argc, char *argv[])
 	    break;
 	case 'V':		/* -V - write version and exit */
 	    errno = 0;		/* pre-clear errno for warnp() */
-	    ret = printf("%s\n", DBG_VERSION);
+	    ret = printf("%s\n", dbg_version);
 	    if (ret <= 0) {
-		warnp(__func__, "printf error writing version string: %s", DBG_VERSION);
+		warnp(__func__, "printf error writing version string: %s", dbg_version);
 	    }
 	    exit(0); /*ooo*/
 	    not_reached();
 	    break;
 	default:
 	    fprintf_usage(DO_NOT_EXIT, stderr, "invalid -flag");
-	    fprintf_usage(3, stderr, usage, program, DBG_VERSION); /*ooo*/
+	    fprintf_usage(3, stderr, usage, program, dbg_version); /*ooo*/
 	    not_reached();
 	}
     }
@@ -5627,7 +5628,7 @@ main(int argc, char *argv[])
     default:
 	fprintf_usage(DO_NOT_EXIT, stderr, "requires two or three arguments");
 	/* exit(4); */
-	fprintf_usage(4, stderr, usage, program, DBG_VERSION); /*ooo*/
+	fprintf_usage(4, stderr, usage, program, dbg_version); /*ooo*/
 	not_reached();
 	break;
     }
