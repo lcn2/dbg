@@ -43,13 +43,13 @@
  * IMPORTANT WARNING: This code is widely used by a number of applications. A
  *		      great deal of care has gone in to making these debugging
  *		      facilities easy to code with, and much less likely to be
- *		      the source (pun intended) of bugs.
+ *		      the source (pun intended, obviously :-) ) of bugs.
  *
  *		      We apologize in advance for any problems this code may
  *		      introduce. We would be happy to fix a general bug by
  *		      considering a pull request to the dbg repo.
  *
- * DBG repo: https://github.com/lcn2/dbg
+ * dbg repo: https://github.com/lcn2/dbg
  *
  *		      You may also report a bug in the form of an issue using
  *		      the above URL.
@@ -6261,6 +6261,42 @@ vfprintf_usage(int exitcode, FILE *stream, char const *fmt, va_list ap)
 	errno = saved_errno;
     }
     return;
+}
+
+
+/*
+ * parse_verbosity - parse -v optarg for our tools
+ *
+ * given:
+ *	optarg		verbosity string, must be an integer >= 0
+ *
+ * returns:
+ *	parsed verbosity or DBG_INVALID on conversion error
+ */
+int
+parse_verbosity(char const *optarg)
+{
+    int verbosity = DBG_NONE;	/* parsed verbosity or DBG_NONE */
+
+    /*
+     * firewall
+     */
+    if (optarg == NULL) {
+	return DBG_INVALID;
+    }
+
+    /*
+     * parse verbosity
+     */
+    errno = 0;		/* pre-clear errno for warnp() */
+    verbosity = (int)strtol(optarg, NULL, 0);
+    if (errno != 0) {
+	return DBG_INVALID;
+    }
+    if (verbosity < 0) {
+	return DBG_INVALID;
+    }
+    return verbosity;
 }
 
 
