@@ -361,13 +361,13 @@ dbg_test.o: dbg_test.c
 	${CC} ${CFLAGS} -DDBG_TEST dbg_test.c -c
 
 dbg_test: dbg_test.o libdbg.a
-	${CC} ${CFLAGS} dbg_test.o libdbg.a -o $@
+	${CC} ${CFLAGS} dbg_test.o -L. -ldbg -o $@
 
 dbg_example.o: dbg_example.c
 	${CC} ${CFLAGS} dbg_example.c -c
 
 dbg_example: dbg_example.o
-	${CC} ${CFLAGS} dbg_example.o libdbg.a -o $@
+	${CC} ${CFLAGS} dbg_example.o -L. -ldbg -o $@
 
 
 #########################################################
