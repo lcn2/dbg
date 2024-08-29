@@ -151,14 +151,18 @@ C_OPT= -O3 -g3
 WARN_FLAGS= -pedantic -Wall -Wextra -Wno-char-subscripts
 #WARN_FLAGS= -pedantic -Wall -Wextra -Werror
 
+# special compiler flags
+#
+C_SPECIAL=
+
 # linker options
 #
 LDFLAGS=
 
 # how to compile
 #
-CFLAGS= ${C_STD} ${C_OPT} ${WARN_FLAGS} ${LDFLAGS}
-#CFLAGS= ${C_STD} -O0 -g ${WARN_FLAGS} ${LDFLAGS} -fsanitize=address -fno-omit-frame-pointer
+CFLAGS= ${C_STD} ${C_OPT} ${WARN_FLAGS} ${C_SPECIAL} ${LDFLAGS}
+#CFLAGS= ${C_STD} -O0 -g ${WARN_FLAGS} ${C_SPECIAL} ${LDFLAGS} -fsanitize=address -fno-omit-frame-pointer
 
 
 ###############
@@ -559,9 +563,9 @@ tags: ${ALL_CSRC} ${ALL_HSRC}
 	    echo ''; 1>&2; \
 	    exit 1; \
 	fi
-	${E} ${MAKE} local_dir_tags
+	${E} ${MAKE} local_dir_tags C_SPECIAL=${C_SPECIAL}
 	${Q} echo
-	${E} ${MAKE} all_tags
+	${E} ${MAKE} all_tags C_SPECIAL=${C_SPECIAL}
 	${S} echo
 	${S} echo "${OUR_NAME}: make $@ ending"
 
