@@ -695,7 +695,7 @@ uninstall:
 	${S} echo "${OUR_NAME}: make $@ starting"
 	${S} echo
 	${I} ${RM} -r -f ${RM_V} ${DEST_LIB}/libdbg.a
-
+	${I} ${RM} -r -f ${RM_V} ${DEST_LIB}/dbg.a
 	${RM} -r -f ${RM_V} ${DEST_DIR}/dbg_example
 	${RM} -r -f ${RM_V} ${DEST_DIR}/dbg_test
 	${RM} -r -f ${RM_V} ${MAN3_DIR}/dbg.3
