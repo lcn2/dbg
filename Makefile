@@ -459,7 +459,7 @@ man/man3/printf_usage.3:
 
 test:
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${Q} ${RM} -f dbg_test.out
 	${Q} if [[ ! -x ./dbg_test ]]; then \
@@ -488,13 +488,13 @@ test:
 	    fi; \
 	fi
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 # sequence exit codes
 #
 seqcexit: ${ALL_CSRC}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${Q} if ! type -P ${SEQCEXIT} >/dev/null 2>&1; then \
 	    echo 'The ${SEQCEXIT} tool could not be found.' 1>&2; \
@@ -510,11 +510,11 @@ seqcexit: ${ALL_CSRC}
 	    ${SEQCEXIT} -D werr_sem_val -D werrp_sem_val -- ${ALL_CSRC}; \
 	fi
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 picky: ${ALL_SRC}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${Q} if ! type -P ${PICKY} >/dev/null 2>&1; then \
 	    echo 'The ${PICKY} tool could not be found.' 1>&2; \
@@ -535,23 +535,23 @@ picky: ${ALL_SRC}
 	    fi; \
 	fi
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 # inspect and verify shell scripts
 #
 shellcheck:
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${V} echo "${OUR_NAME}: nothing to do"
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 # inspect and verify man pages
 #
 check_man: ${ALL_MAN_TARGETS}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	-${Q} if ! type -P ${CHECKNR} >/dev/null 2>&1; then \
 	    echo 'The ${CHECKNR} command could not be found.' 1>&2; \
@@ -567,7 +567,7 @@ check_man: ${ALL_MAN_TARGETS}
 	    ${CHECKNR} -c.BR.SS.BI.IR.RB.RI ${ALL_MAN_TARGETS}; \
 	fi
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 
 # install man pages
@@ -580,7 +580,7 @@ install_man: ${ALL_MAN_TARGETS}
 #
 tags: ${ALL_CSRC} ${ALL_HSRC}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${Q} if ! type -P ${CTAGS} >/dev/null 2>&1; then \
 	    echo 'The ${CTAGS} command could not be found.' 1>&2; \
@@ -597,13 +597,13 @@ tags: ${ALL_CSRC} ${ALL_HSRC}
 	${Q} echo
 	${E} ${MAKE} all_tags C_SPECIAL=${C_SPECIAL}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 # use the ${CTAGS} tool to form ${LOCAL_DIR_TAGS} of the source in this directory
 #
 local_dir_tags: ${ALL_CSRC} ${ALL_HSRC}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${Q} if ! type -P ${CTAGS} >/dev/null 2>&1; then \
 	    echo 'The ${CTAGS} command could not be found.' 1>&2; \
@@ -619,19 +619,19 @@ local_dir_tags: ${ALL_CSRC} ${ALL_HSRC}
 	${Q} ${RM} -f ${LOCAL_DIR_TAGS}
 	-${E} ${CTAGS} -w -f ${LOCAL_DIR_TAGS} ${ALL_CSRC} ${ALL_HSRC}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 # for a tags file from ${LOCAL_DIR_TAGS}
 #
 all_tags:
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${E} ${RM} -f tags
 	${E} ${CP} -f -v ${LOCAL_DIR_TAGS} tags
 	${E} ${SORT} tags -o tags
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 legacy_clean:
 	${S} echo
@@ -643,11 +643,11 @@ legacy_clean:
 
 legacy_clobber: legacy_clean
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${V} echo "${OUR_NAME}: nothing to do"
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 
 ###################################
@@ -659,25 +659,25 @@ configure:
 
 clean:
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${RM} -f ${ALL_OBJS} ${ALL_BUILT_SRC}
 	${RM} -f dbg_test.out
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 clobber: legacy_clobber clean
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${RM} -f ${TARGETS}
 	${RM} -f tags ${LOCAL_DIR_TAGS}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 install: all install_man
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${DEST_LIB}
 	${I} ${INSTALL} ${INSTALL_V} -m 0444 ${LIBA_TARGETS} ${DEST_LIB}
@@ -688,11 +688,11 @@ install: all install_man
 	${I} ${INSTALL} ${INSTALL_V} -d -m 0775 ${DEST_DIR}
 	${I} ${INSTALL} ${INSTALL_V} -m 0555 ${SH_TARGETS} ${PROG_TARGETS} ${DEST_DIR}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 uninstall:
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${S} echo
 	${I} ${RM} -f ${RM_V} ${DEST_LIB}/libdbg.a
 	${I} ${RM} -f ${RM_V} ${DEST_LIB}/dbg.a
@@ -751,7 +751,7 @@ uninstall:
 	${I} ${RM} -f ${RM_V} ${MAN3_DIR}/warnp.3
 	${I} ${RM} -f ${RM_V} ${MAN3_DIR}/werrp.3
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 ###############
 # make depend #
@@ -759,7 +759,7 @@ uninstall:
 
 depend: ${ALL_CSRC}
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ starting"
+	${S} echo "${OUR_NAME}: make $@ starting at: `date`"
 	${Q} if ! type -P ${INDEPEND} >/dev/null 2>&1; then \
 	    echo '${OUR_NAME}: The ${INDEPEND} command could not be found.' 1>&2; \
 	    echo '${OUR_NAME}: The ${INDEPEND} command is required to run the $@ rule'; 1>&2; \
@@ -785,7 +785,7 @@ depend: ${ALL_CSRC}
 	    fi; \
 	fi
 	${S} echo
-	${S} echo "${OUR_NAME}: make $@ ending"
+	${S} echo "${OUR_NAME}: make $@ ending at: `date`"
 
 ### DO NOT CHANGE MANUALLY BEYOND THIS LINE
 dbg.o: dbg.c dbg.h
