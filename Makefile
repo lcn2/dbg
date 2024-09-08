@@ -132,8 +132,8 @@ PREFIX= /usr/local
 # RM_V=					rm w/o -v flag (quiet mode)
 # RM_V= -v				rm with -v (debug / verbose mode)
 #
-#RM_V=
-RM_V= -v
+#RM_V= -v
+RM_V=
 
 # Additional controls
 #
