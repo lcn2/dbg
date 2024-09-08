@@ -672,6 +672,7 @@ clobber: legacy_clobber clean
 	${S} echo
 	${RM} -f ${TARGETS}
 	${RM} -f tags ${LOCAL_DIR_TAGS}
+	${E} ${RM} -f Makefile.orig 
 	${S} echo
 	${S} echo "${OUR_NAME}: make $@ ending"
 
