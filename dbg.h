@@ -28,7 +28,7 @@
 
 
 #if !defined(INCLUDE_DBG_H)
-#    define  INCLUDE_DBG_H
+#define INCLUDE_DBG_H
 
 
 #include <stdio.h>
@@ -41,7 +41,7 @@
 /*
  * definitions
  */
-#define DBG_VERSION "3.1 2023-08-28"		/* format: major.minor YYYY-MM-DD */
+#define DBG_VERSION "3.2 2023-09-16"            /* format: major.minor YYYY-MM-DD */
 
 /*
  * dbg basename
@@ -50,74 +50,38 @@
 
 
 /*
- * standard truth :-)
+ * We sure we have some standard truth :-)
+ *
+ * We need to be sure that bool, true, and false are understood by the C compiler.
  */
-#if !defined(BOOL_IS_DEFINED)
-#define BOOL_IS_DEFINED
-#if !defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)
-/* have a C99 compiler - we should expect to have <stdbool.h> */
-#include <stdbool.h>
-#elif !defined(__cplusplus)
-/* do not have a C99 compiler - fake a <stdbool.h> header file */
-typedef unsigned char bool;
-#undef true
-#define true ((bool)(1))
-#undef false
-#define false ((bool)(0))
-#endif
-#endif
-/* booltostr - convert a boolean to a string */
+#include "c_bool.h"
+
+
+/*
+ * c_compat - backward compatibility for __attribute__, __func__, and not_reached()
+ */
+#include "c_compat.h"
+
+
+/*
+ * booltostr - convert a boolean to a string
+ */
 #if !defined(booltostr)
-#define booltostr(x) ((x) ? "true" : "false")
+  #define booltostr(x) ((x) ? "true" : "false")
 #endif
-/* strtobool - convert a string to a boolean */
+
+
+/*
+ * strtobool - convert a string to a boolean
+ */
 #if !defined(strtobool)
-#define strtobool(x) ((x) != NULL && !strcmp((x), "true"))
-#endif
-
-
-
-/*
- * backward compatibility
- *
- * Not all compilers support __attribute__ nor do they support __has_builtin.
- * For example, MSVC, TenDRA and Little C Compiler don't support __attribute__.
- * Early gcc does not support __attribute__.
- *
- * Not all compilers have __has_builtin
- *
- * __func__ is not supported prior to C99.
- */
-#if !defined(__attribute__) && \
-    (defined(__cplusplus) || !defined(__GNUC__)  || __GNUC__ == 2 && __GNUC_MINOR__ < 8)
-#    define __attribute__(A)
-#endif
-#if !defined __has_builtin
-#    define __has_builtin(x) 0
-#endif
-#if (__STDC_VERSION__ < 199901L)
-#    define __func__ __FILE__
+  #define strtobool(x) ((x) != NULL && !strcmp((x), "true"))
 #endif
 
 
 /*
- * not_reached
- *
- * In the old days of lint, one could give lint and friends a hint by
- * placing the token NOTREACHED immediately between opening and closing
- * comments.  Modern compilers do not honor such commented tokens
- * and instead rely on features such as __builtin_unreachable
- * and __attribute__((noreturn)).
- *
- * The not_reached will either yield a __builtin_unreachable() feature call,
- * or it will call abort from stdlib.
+ * debugging defines
  */
-#if __has_builtin(__builtin_unreachable)
-#    define not_reached() __builtin_unreachable()
-#else
-#    define not_reached() abort()
-#endif /* __has_builtin(__builtin_unreachable) */
-
 
 #define DBG_NONE (0)		/* no debugging */
 #define DBG_LOW (1)		/* minimal debugging */
