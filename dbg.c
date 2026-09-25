@@ -1103,14 +1103,14 @@ snerr_write(char *str, size_t size, int error_code, char const *caller,
     ret = snprintf(str, size, "ERROR[%d]: %s: ", error_code, name);
     if (ret < 0) {
 	warnp(caller, "\nin %s(str, %zu, %s, %d, %s, %s, ap): "
-		      "snprintf returned: %d",
+		      "snprintf returned: %d\n",
 		      __func__, size, caller, error_code, name, fmt, ret);
 	errno = saved_errno;
 	return;
     }
     if ((size_t)ret >= size) {
 	warnp(caller, "\nin %s(str, %zu, %s, %d, %s, %s, ap): "
-		      "snprintf returned: %d",
+		      "snprintf returned: %d\n",
 		      __func__, size, caller, error_code, name, fmt, ret);
 	errno = saved_errno;
 	return;
@@ -1305,14 +1305,14 @@ snerrp_write(char *str, size_t size, int error_code, char const *caller,
     ret = snprintf(str, size, "ERROR[%d]: %s: ", error_code, name);
     if (ret < 0) {
 	warnp(caller, "\nin %s(str, %zu, %s, %d, %s, %s, ap): "
-		      "snprintf returned: %d",
+		      "snprintf returned: %d\n",
 		      __func__, size, caller, error_code, name, fmt, ret);
 	errno = saved_errno;
 	return;
     }
     if ((size_t)ret >= size) {
 	warnp(caller, "\nin %s(str, %zu, %s, %d, %s, %s, ap): "
-		      "snprintf returned: %d",
+		      "snprintf returned: %d\n",
 		      __func__, size, caller, error_code, name, fmt, ret);
 	errno = saved_errno;
 	return;
