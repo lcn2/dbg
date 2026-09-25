@@ -55,7 +55,7 @@
     (defined(__cplusplus) || !defined(__GNUC__)  || __GNUC__ == 2 && __GNUC_MINOR__ < 8)
   #define __attribute__(A)
 #endif
-#if __STDC_VERSION__ < 199901L
+#if !defined(STD__C_VERSION) || STD__C_VERSION < 199901L
   #if !defined(__func__)
     #if defined(__FILE__)
       #define __func__ __FILE__
